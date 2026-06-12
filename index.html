@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elia Coast — Residences &amp; Suites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&family=Fredoka:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ TWO COLORS: #0C2238 deep aegean · #E8A89C rose ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--night:#0C2238;--rose:#E8A89C;--cream:#FDFAF6}
+html{overflow-x:hidden}
+body{font-family:'Jost',sans-serif;background:var(--night);color:var(--cream);overflow-x:hidden}
+h1,h2,h3,blockquote{font-family:'Cormorant Garamond',serif}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+
+/* ═══ PERSISTENT WORLD CANVAS ═══ */
+#world{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+
+/* ═══ LOADER — the bay waking up ═══ */
+#loader{position:fixed;inset:0;z-index:1200;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity 0.9s ease 0.35s,visibility 0.9s 0.35s}
+#loader.gone{opacity:0;visibility:hidden;pointer-events:none}
+
+/* rising sun orb */
+.ld-orb{
+  position:absolute;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%,rgba(232,168,156,0.55) 0%,rgba(232,168,156,0.18) 38%,transparent 68%);
+  filter:blur(6px);
+  animation:orbRise 3.2s cubic-bezier(0.22,1,0.36,1) forwards,orbBreathe 4s ease-in-out 1.2s infinite;
+}
+@keyframes orbRise{from{transform:translateY(180px) scale(0.55);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes orbBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+#loader.gone .ld-orb{animation:orbBurst 0.8s cubic-bezier(0.55,0,1,0.45) forwards}
+@keyframes orbBurst{to{transform:scale(5);opacity:0}}
+
+/* water ripple rings */
+.ld-rings{position:absolute;width:340px;height:340px;display:flex;align-items:center;justify-content:center}
+.ld-rings span{
+  position:absolute;width:120px;height:120px;border-radius:50%;
+  border:1px solid rgba(232,168,156,0.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.25),0 0 20px rgba(232,168,156,0.15);
+  animation:ripple 2.8s cubic-bezier(0.2,0.6,0.35,1) infinite;
+  opacity:0;
+}
+.ld-rings span:nth-child(2){animation-delay:0.9s}
+.ld-rings span:nth-child(3){animation-delay:1.8s}
+@keyframes ripple{0%{transform:scale(0.3);opacity:0}12%{opacity:0.9}100%{transform:scale(3.1);opacity:0}}
+
+/* wordmark — letters tumble in from the deep */
+.ld-word{position:relative;z-index:3;display:flex;gap:0.04em;font-family:'Cormorant Garamond',serif;font-size:clamp(34px,7vw,72px);font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:var(--cream)}
+.ld-word em{font-style:italic;color:var(--rose)}
+.ld-l{
+  display:inline-block;opacity:0;
+  transform:translateY(90px) rotate(var(--r,0deg)) scale(1.6);
+  filter:blur(12px);
+  animation:letterIn 1.1s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation-delay:calc(0.25s + var(--i) * 0.07s);
+  text-shadow:0 2px 24px rgba(232,168,156,0.3);
+}
+.ld-l.sp{width:0.5em}
+@keyframes letterIn{
+  60%{filter:blur(0);opacity:1}
+  100%{transform:translateY(0) rotate(0deg) scale(1);filter:blur(0);opacity:1}
+}
+/* once landed, the word floats — same space-drift language as the site */
+.ld-word{animation:wordFloat 5s ease-in-out 2s infinite}
+@keyframes wordFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+/* exit: letters scatter upward in sequence */
+#loader.gone .ld-l{
+  animation:letterOut 0.55s cubic-bezier(0.55,0,1,0.45) forwards;
+  animation-delay:calc(var(--i) * 0.035s);
+}
+@keyframes letterOut{to{transform:translateY(-110px) rotate(var(--r,0deg)) scale(0.8);opacity:0;filter:blur(10px)}}
+
+.ld-label{
+  position:relative;z-index:3;margin-top:26px;
+  font-size:10px;font-weight:300;letter-spacing:0.45em;text-transform:uppercase;color:rgba(232,168,156,0.65);
+  opacity:0;animation:labelIn 1s ease 1.5s forwards;
+}
+@keyframes labelIn{to{opacity:1}}
+#loader.gone .ld-label{transition:opacity 0.3s;opacity:0}
+
+/* glass progress sliver */
+.ld-bar{
+  position:relative;z-index:3;margin-top:22px;width:180px;height:2px;border-radius:100px;overflow:hidden;
+  background:rgba(232,168,156,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+  opacity:0;animation:labelIn 0.8s ease 1.2s forwards;
+}
+.ld-bar i{
+  position:absolute;top:0;bottom:0;left:-40%;width:40%;border-radius:100px;
+  background:linear-gradient(90deg,transparent,var(--rose),transparent);
+  animation:barSweep 1.4s cubic-bezier(0.4,0,0.2,1) infinite;
+}
+@keyframes barSweep{to{left:100%}}
+#loader.gone .ld-bar{transition:opacity 0.3s;opacity:0}
+
+/* drifting dust motes */
+.ld-mote{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:rgba(232,168,156,0.5);box-shadow:0 0 8px rgba(232,168,156,0.5);
+  animation:moteUp var(--t,7s) linear var(--dl,0s) infinite;
+  bottom:-10px;left:var(--x,50%);opacity:0;
+}
+@keyframes moteUp{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  12%{opacity:0.8}
+  100%{transform:translateY(-105vh) translateX(var(--dx,20px));opacity:0}
+}
+
+/* ═══ NAV ═══ */
+#nav{position:fixed;top:0;left:0;right:0;z-index:600;padding:26px 44px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;letter-spacing:0.24em;text-transform:uppercase;color:var(--cream);text-decoration:none;line-height:1.3;mix-blend-mode:difference}
+.nav-logo span{display:block;font-size:8px;letter-spacing:0.32em;opacity:0.55;margin-top:2px}
+#menu-btn{background:none;border:1px solid rgba(232,168,156,0.3);border-radius:100px;color:var(--cream);padding:10px 24px;font-family:'Jost',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;touch-action:manipulation;backdrop-filter:blur(8px)}
+#menu-btn:hover{background:var(--rose);border-color:var(--rose);color:var(--night)}
+@media(max-width:600px){#nav{padding:18px 20px}}
+
+/* ═══ CHAPTER MENU OVERLAY ═══ */
+#menu{position:fixed;inset:0;z-index:580;background:rgba(12,34,56,0.97);backdrop-filter:blur(18px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity 0.6s ease,visibility 0.6s}
+#menu.open{opacity:1;visibility:visible}
+.menu-list{list-style:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.menu-list a{display:flex;align-items:baseline;gap:18px;text-decoration:none;padding:12px 0;transition:opacity 0.3s}
+.menu-num{font-size:10px;font-weight:300;letter-spacing:0.2em;color:rgba(232,168,156,0.55)}
+.menu-name{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,6.5vw,62px);font-weight:300;font-style:italic;color:var(--cream);transition:color 0.3s}
+.menu-list a:hover .menu-name{color:var(--rose)}
+.menu-sub{margin-top:40px;font-size:10px;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:rgba(253,250,246,0.3)}
+
+/* ═══ CONTENT OVER THE WORLD ═══ */
+#content{position:relative;z-index:10}
+.screen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 44px;position:relative}
+@media(max-width:600px){.screen{padding:0 20px}}
+
+/* hero */
+.hero-kicker{font-size:10px;font-weight:300;letter-spacing:0.34em;text-transform:uppercase;color:var(--rose);margin-bottom:18px;text-shadow:0 1px 10px rgba(6,16,28,0.8)}
+.hero-h{font-size:clamp(46px,9vw,128px);font-weight:300;line-height:0.92;letter-spacing:-0.015em;max-width:1100px;text-shadow:0 2px 18px rgba(6,16,28,0.75),0 1px 3px rgba(6,16,28,0.6)}
+.hero-h em{font-style:italic;color:var(--rose)}
+.scroll-cue{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;animation:cueBob 2.4s ease-in-out infinite}
+@keyframes cueBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.cue-line{width:1px;height:46px;background:linear-gradient(to bottom,transparent,rgba(232,168,156,0.55))}
+.cue-text{font-size:9px;font-weight:300;letter-spacing:0.3em;text-transform:uppercase;color:rgba(253,250,246,0.7);text-shadow:0 1px 8px rgba(6,16,28,0.7)}
+
+/* chapter intro card — Sidewave style */
+.chapter{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:0 44px;max-width:980px}
+.chapter-inner{padding:56px 56px}
+@media(max-width:600px){.chapter-inner{padding:36px 26px;border-radius:22px}}
+.ch-num{font-size:11px;font-weight:300;letter-spacing:0.3em;color:rgba(232,168,156,0.9);margin-bottom:16px}
+.ch-name{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,92px);font-weight:300;line-height:0.95;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:24px}
+.ch-name em{font-style:italic;text-transform:none;color:var(--rose)}
+.ch-desc{font-size:14px;font-weight:300;line-height:1.85;color:rgba(253,250,246,0.82);max-width:420px;margin-bottom:36px}
+.ch-index{display:flex;gap:26px;list-style:none;flex-wrap:wrap;margin-bottom:44px}
+.ch-index li{font-size:10px;font-weight:300;letter-spacing:0.22em;text-transform:uppercase;color:rgba(253,250,246,0.6);padding-bottom:6px;border-bottom:1px solid rgba(232,168,156,0.28)}
+.ch-next{display:inline-flex;align-items:center;gap:12px;font-size:10px;font-weight:400;letter-spacing:0.25em;text-transform:uppercase;color:var(--rose);text-decoration:none;transition:gap 0.3s}
+.ch-next:hover{gap:20px}
+@media(max-width:600px){.chapter{padding:0 20px}}
+
+/* giant statements */
+.statement{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 24px}
+.statement h2{font-size:clamp(34px,6.5vw,96px);font-weight:300;line-height:1.05;letter-spacing:0.01em;max-width:1000px;text-shadow:0 1px 12px rgba(6,16,28,0.35)}
+.statement h2 em{font-style:italic;color:var(--rose)}
+.statement .sub{display:block;margin-top:22px;font-family:'Jost',sans-serif;font-size:12px;font-weight:300;letter-spacing:0.18em;color:rgba(253,250,246,0.78);text-transform:uppercase;text-shadow:0 1px 10px rgba(6,16,28,0.7)}
+
+/* key data — Sidewave stats */
+.keydata{min-height:80vh;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;align-content:center;padding:0 44px;max-width:1200px;margin:0 auto;width:100%}
+.kd{padding:44px 32px}
+.kd-n{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,5vw,64px);font-weight:300;color:var(--rose);line-height:1;margin-bottom:10px}
+.kd-l{font-size:10px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(253,250,246,0.75)}
+@media(max-width:600px){.keydata{padding:0 20px}}
+
+/* suites — glass cards floating on the world */
+#suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:26px;max-width:1240px;margin:0 auto;width:100%;padding:40px 44px 110px}
+@media(max-width:680px){#suites-grid{grid-template-columns:1fr;padding:30px 18px 80px}}
+.suite-card{overflow:hidden;cursor:pointer;touch-action:manipulation;transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),box-shadow 0.35s,border-color 0.35s}
+.suite-card:hover{transform:translateY(-8px);border-color:rgba(255,255,255,0.4);box-shadow:0 26px 60px rgba(6,16,28,0.5),inset 0 1px 0 rgba(255,255,255,0.4)}
+.sc-num{position:absolute;top:14px;right:16px;font-family:'Cormorant Garamond',serif;font-size:12px;color:rgba(253,250,246,0.55)}
+.sc-avail{position:absolute;bottom:12px;left:12px;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 12px;border-radius:100px}
+.av{background:rgba(80,130,90,0.85);color:#fff}
+.li{background:rgba(185,138,50,0.85);color:#fff}
+.sc-body{padding:22px 22px 20px}
+.sc-type{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rose);margin-bottom:8px;opacity:0.85}
+.sc-name{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:300;line-height:1.1;margin-bottom:10px}
+.sc-name em{font-style:italic}
+.sc-desc{font-size:12px;font-weight:300;line-height:1.7;color:rgba(253,250,246,0.78);margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sc-specs{display:flex;gap:14px;flex-wrap:wrap;padding-top:12px;border-top:1px solid rgba(232,168,156,0.12);margin-bottom:14px}
+.sc-spec{font-size:10.5px;font-weight:300;color:rgba(253,250,246,0.78)}
+.sc-foot{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid rgba(232,168,156,0.12)}
+.sc-price{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:300;color:var(--cream)}
+.sc-price sub{font-size:10px;font-family:'Jost',sans-serif;font-weight:300;color:rgba(253,250,246,0.45);vertical-align:baseline}
+.sc-cta{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rose);border:1px solid rgba(232,168,156,0.35);border-radius:100px;padding:8px 16px;background:none;cursor:pointer;transition:all 0.25s;touch-action:manipulation}
+.sc-cta:hover{background:var(--rose);color:var(--night)}
+
+/* contact chapter */
+.contact-card{max-width:680px;margin:0 auto;padding:54px 44px;text-align:center}
+.contact-card h2{font-size:clamp(30px,5vw,54px);font-weight:300;margin-bottom:16px}
+.contact-card h2 em{font-style:italic;color:var(--rose)}
+.contact-card p{font-size:13px;font-weight:300;line-height:1.8;color:rgba(253,250,246,0.78);margin-bottom:30px}
+.contact-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cl-btn{display:inline-flex;align-items:center;gap:10px;background:var(--rose);color:var(--night);border:none;border-radius:100px;padding:14px 32px;font-family:'Jost',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:background 0.3s;touch-action:manipulation}
+.cl-btn:hover{background:var(--cream)}
+.cl-ghost{display:inline-flex;align-items:center;background:none;border:1px solid rgba(232,168,156,0.35);color:var(--cream);border-radius:100px;padding:14px 28px;font-size:10px;font-weight:300;letter-spacing:0.22em;text-transform:uppercase;text-decoration:none;transition:all 0.3s;touch-action:manipulation}
+.cl-ghost:hover{border-color:var(--rose);color:var(--rose)}
+.site-end{padding:60px 44px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.site-end p{font-size:10px;font-weight:300;letter-spacing:0.14em;color:rgba(253,250,246,0.25);text-transform:uppercase}
+@media(max-width:600px){.site-end{padding:44px 20px 28px;flex-direction:column;text-align:center}}
+
+/* gradients for suite cards (two-color blends, no photos) */
+.g0{background:linear-gradient(155deg,#0C2238 0%,#1E4A66 55%,#E8A89C 165%)}
+.g1{background:linear-gradient(165deg,#10293E 0%,#26577A 58%,#E0A096 168%)}
+.g2{background:linear-gradient(145deg,#0C2238 8%,#1A3D54 50%,#D89A90 155%)}
+.g3{background:linear-gradient(160deg,#0E2540 0%,#215070 56%,#E8A89C 162%)}
+
+/* text animations */
+.split-mask{display:block;overflow:hidden}
+.w-mask{display:inline-block;overflow:hidden;vertical-align:baseline;padding:0.15em 0.08em 0.22em;margin:-0.15em -0.08em -0.22em}
+.w-inner{display:inline-block;transform:translateY(130%);transition:transform 1s cubic-bezier(0.22,1,0.36,1);transition-delay:var(--d,0s)}
+.inview .w-inner{transform:translateY(0)}
+.fade-rise{opacity:0;transform:translateY(24px);transition:opacity 0.8s ease,transform 0.9s cubic-bezier(0.22,1,0.36,1);transition-delay:var(--d,0s)}
+.inview.fade-rise,.inview .fade-rise{opacity:1;transform:translateY(0)}
+
+/* sound chip */
+/* sound control lives inside the day rail */
+.rail-divider{width:14px;height:1px;background:rgba(232,168,156,0.25);margin:2px 0}
+#sound-chip{position:static;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(232,168,156,0.3);color:rgba(253,250,246,0.8);padding:0;cursor:pointer;transition:all 0.3s;touch-action:manipulation}
+#sound-chip:hover{border-color:var(--rose);background:rgba(232,168,156,0.18)}
+#sound-chip-label{display:none}
+.eq{display:flex;align-items:flex-end;gap:2.5px;height:12px}
+.eq span{width:2px;background:var(--rose);height:30%}
+#sound-chip.on .eq span{animation:eqB 0.9s ease-in-out infinite}
+#sound-chip.on .eq span:nth-child(2){animation-delay:0.2s}
+#sound-chip.on .eq span:nth-child(3){animation-delay:0.45s}
+@keyframes eqB{0%,100%{height:30%}50%{height:100%}}
+
+/* day progress rail */
+#day-rail{position:fixed;top:50%;right:26px;transform:translateY(-50%);z-index:560;display:flex;flex-direction:column;align-items:center;gap:10px}
+.rail-track{width:1px;height:140px;background:rgba(232,168,156,0.18);position:relative}
+.rail-fill{position:absolute;top:0;left:0;width:100%;height:0%;background:var(--rose)}
+.rail-label{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(232,168,156,0.5);writing-mode:vertical-rl}
+@media(max-width:680px){
+  #day-rail{top:auto;bottom:20px;right:14px;transform:none;padding:8px;gap:0}
+  #day-rail .rail-track,#day-rail .rail-label,#day-rail .rail-divider{display:none}
+}
+
+/* modal (calendar) */
+.modal-bg{display:none;position:fixed;inset:0;z-index:700;background:rgba(8,20,34,0.85);align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+.modal-bg.open{display:flex}
+.modal{max-width:860px;width:100%;max-height:94vh;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;animation:mi 0.35s ease}
+@keyframes mi{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-vis{position:relative;min-height:300px;overflow:hidden}
+.modal-close{position:absolute;top:12px;right:12px;background:rgba(8,20,34,0.5);border:1px solid rgba(232,168,156,0.25);width:34px;height:34px;border-radius:50%;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;touch-action:manipulation}
+.modal-body{padding:32px 28px;display:flex;flex-direction:column;gap:14px}
+.m-type{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rose)}
+.m-name{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:300;line-height:1.1}
+.m-name em{font-style:italic}
+.m-desc{font-size:12.5px;font-weight:300;line-height:1.8;color:rgba(253,250,246,0.6)}
+.m-div{height:1px;background:rgba(232,168,156,0.14)}
+.m-specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-spec .v{font-size:13px;font-weight:400;color:var(--cream)}
+.m-spec .k{font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(253,250,246,0.4)}
+.cal-lbl{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(253,250,246,0.4);margin-bottom:8px}
+.calendar{background:rgba(8,20,34,0.5);border:1px solid rgba(232,168,156,0.14);border-radius:14px;padding:14px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-ml{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream)}
+.cal-btn{background:none;border:1px solid rgba(232,168,156,0.25);width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:rgba(253,250,246,0.7);touch-action:manipulation}
+.cal-btn:hover{background:var(--rose);color:var(--night);border-color:var(--rose)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{text-align:center;font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(253,250,246,0.35);padding-bottom:5px}
+.cal-d{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:300}
+.cal-d.e{background:none}
+.cal-d.a{background:rgba(253,250,246,0.08);border:1px solid rgba(232,168,156,0.18);color:var(--cream);cursor:pointer}
+.cal-d.a:hover{background:var(--rose);color:var(--night)}
+.cal-d.b{background:rgba(232,168,156,0.08);color:rgba(232,168,156,0.65);border:1px solid rgba(232,168,156,0.14);text-decoration:line-through;cursor:not-allowed;font-size:10px}
+.cal-legs{display:flex;gap:12px;margin-top:10px}
+.cal-leg{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:300;color:rgba(253,250,246,0.4)}
+.leg-sq{width:9px;height:9px;border-radius:2px}
+.leg-a{background:rgba(253,250,246,0.08);border:1px solid rgba(232,168,156,0.2)}
+.leg-b{background:rgba(232,168,156,0.1);border:1px solid rgba(232,168,156,0.16)}
+.m-foot{padding-top:14px;border-top:1px solid rgba(232,168,156,0.14);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.m-price{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:300;color:var(--cream)}
+.m-price small{display:block;font-size:10px;font-family:'Jost',sans-serif;font-weight:300;color:rgba(253,250,246,0.4)}
+.btn-book{background:var(--rose);color:var(--night);border:none;border-radius:100px;padding:12px 26px;font-family:'Jost',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:background 0.25s;touch-action:manipulation}
+.btn-book:hover{background:var(--cream)}
+@media(max-width:640px){.modal{grid-template-columns:1fr}.modal-vis{min-height:190px}}
+
+#fx-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:900;pointer-events:none;display:block}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ═══ LIQUID GLASS — one material for all surfaces (iOS style) ═══ */
+.chapter-inner,.statement-card,.kd,.suite-card,.contact-card,.modal{
+  position:relative;
+  background:linear-gradient(135deg,rgba(10,26,42,0.46) 0%,rgba(10,26,42,0.34) 55%,rgba(64,40,48,0.32) 100%);
+  backdrop-filter:blur(26px) saturate(1.25);
+  -webkit-backdrop-filter:blur(26px) saturate(1.25);
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:
+    0 12px 40px rgba(6,16,28,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(255,255,255,0.06);
+  border-radius:30px;
+}
+/* specular sheen along the top edge */
+.chapter-inner::before,.statement-card::before,.suite-card::before,.contact-card::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,0.12) 0%,transparent 30%);
+}
+.statement-card{padding:60px 64px;max-width:1040px;text-align:center}
+@media(max-width:600px){.statement-card{padding:40px 26px}}
+.suite-card{border-radius:24px}
+.kd{border-radius:20px}
+.modal{border-radius:28px}
+
+/* ═══ LIQUID GLASS CONTROLS — every interactive element ═══ */
+
+/* base glass control */
+#menu-btn,.sc-cta,.btn-book,.cl-btn,.cl-ghost,#sound-chip,.cal-btn,.modal-close,.ch-next{
+  background:linear-gradient(135deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.05) 60%,rgba(232,168,156,0.08) 100%);
+  backdrop-filter:blur(18px) saturate(1.3);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3);
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:0 4px 18px rgba(6,16,28,0.28),inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -1px 0 rgba(255,255,255,0.06);
+  color:var(--cream);
+  border-radius:100px;
+  transition:transform 0.25s cubic-bezier(0.22,1,0.36,1),box-shadow 0.25s,border-color 0.25s,background 0.25s;
+}
+#menu-btn:hover,.sc-cta:hover,.cl-ghost:hover,#sound-chip:hover,.cal-btn:hover,.modal-close:hover,.ch-next:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.10) 60%,rgba(232,168,156,0.14) 100%);
+  border-color:rgba(255,255,255,0.45);
+  box-shadow:0 8px 26px rgba(6,16,28,0.36),inset 0 1px 0 rgba(255,255,255,0.5);
+  transform:translateY(-1px);
+  color:var(--cream);
+}
+#menu-btn:active,.sc-cta:active,.btn-book:active,.cl-btn:active,.cl-ghost:active,#sound-chip:active,.cal-btn:active,.modal-close:active{
+  transform:scale(0.96);
+  box-shadow:0 2px 10px rgba(6,16,28,0.3),inset 0 2px 6px rgba(6,16,28,0.25);
+}
+
+/* primary actions: rose-tinted glass (not solid) */
+.btn-book,.cl-btn{
+  background:linear-gradient(135deg,rgba(232,168,156,0.5) 0%,rgba(232,168,156,0.26) 60%,rgba(232,168,156,0.36) 100%);
+  border:1px solid rgba(255,255,255,0.4);
+  color:var(--cream);
+  box-shadow:0 6px 22px rgba(180,110,95,0.3),inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.btn-book:hover,.cl-btn:hover{
+  background:linear-gradient(135deg,rgba(232,168,156,0.65) 0%,rgba(232,168,156,0.4) 60%,rgba(232,168,156,0.5) 100%);
+  border-color:rgba(255,255,255,0.6);
+  transform:translateY(-1px);
+  color:#fff;
+}
+
+/* chapter "next" links become glass pills */
+.ch-next{padding:12px 26px;align-self:flex-start;color:var(--rose)}
+.ch-next:hover{gap:12px;color:var(--cream)}
+
+/* calendar: glass tiles */
+.calendar{
+  background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03));
+  backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.cal-d.a{
+  background:linear-gradient(135deg,rgba(255,255,255,0.13),rgba(255,255,255,0.05));
+  border:1px solid rgba(255,255,255,0.22);
+  color:var(--cream);
+  transition:background 0.2s,transform 0.15s;
+}
+.cal-d.a:hover{
+  background:rgba(232,168,156,0.55);
+  color:#fff;border-color:rgba(255,255,255,0.5);
+  transform:scale(1.06);
+}
+.cal-d.b{
+  background:rgba(232,168,156,0.09);
+  border:1px solid rgba(232,168,156,0.2);
+  color:rgba(232,168,156,0.75);
+}
+.cal-btn{border-radius:10px}
+.leg-a{background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.25)}
+.leg-b{background:rgba(232,168,156,0.12);border:1px solid rgba(232,168,156,0.22)}
+
+/* full-screen menu becomes a glass sheet */
+#menu{
+  background:linear-gradient(150deg,rgba(10,26,42,0.55),rgba(10,26,42,0.42),rgba(64,40,48,0.4));
+  backdrop-filter:blur(34px) saturate(1.35);
+  -webkit-backdrop-filter:blur(34px) saturate(1.35);
+}
+.menu-list a{padding:12px 34px;border-radius:100px;transition:background 0.3s}
+.menu-list a:hover{background:rgba(255,255,255,0.08)}
+
+/* availability pills on suite cards */
+.sc-avail{
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.av{background:rgba(80,130,90,0.45)}
+.li{background:rgba(185,138,50,0.45)}
+
+/* day rail in a slim glass capsule */
+#day-rail{
+  background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.04));
+  backdrop-filter:blur(14px) saturate(1.25);
+  -webkit-backdrop-filter:blur(14px) saturate(1.25);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:100px;
+  padding:18px 10px;
+  box-shadow:0 4px 16px rgba(6,16,28,0.25),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* scroll cue line gets a glass dot */
+.cue-line{box-shadow:0 0 12px rgba(232,168,156,0.4)}
+
+/* ═══ RETREATS ═══ */
+#retreats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;max-width:1240px;margin:0 auto;width:100%;padding:40px 44px 110px}
+@media(max-width:680px){#retreats-grid{grid-template-columns:1fr;padding:30px 18px 80px}}
+.retreat-card{
+  position:relative;overflow:hidden;cursor:default;
+  background:linear-gradient(135deg,rgba(10,26,42,0.46) 0%,rgba(10,26,42,0.34) 55%,rgba(64,40,48,0.32) 100%);
+  backdrop-filter:blur(26px) saturate(1.25);
+  -webkit-backdrop-filter:blur(26px) saturate(1.25);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:26px;
+  box-shadow:0 12px 40px rgba(6,16,28,0.35),inset 0 1px 0 rgba(255,255,255,0.32);
+  padding:40px 36px 36px;
+  display:flex;flex-direction:column;
+  transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),border-color 0.35s,box-shadow 0.35s;
+}
+.retreat-card::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,0.12) 0%,transparent 30%)}
+.retreat-card:hover{transform:translateY(-8px);border-color:rgba(255,255,255,0.4);box-shadow:0 26px 60px rgba(6,16,28,0.5),inset 0 1px 0 rgba(255,255,255,0.45)}
+.rt-season{font-size:9px;font-weight:300;letter-spacing:0.24em;text-transform:uppercase;color:var(--rose);margin-bottom:14px}
+.rt-icon{font-size:30px;margin-bottom:18px;filter:drop-shadow(0 2px 8px rgba(6,16,28,0.4))}
+.rt-name{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:300;line-height:1.12;margin-bottom:12px}
+.rt-name em{font-style:italic;color:var(--rose)}
+.rt-desc{font-size:12.5px;font-weight:300;line-height:1.8;color:rgba(253,250,246,0.78);margin-bottom:22px;flex:1}
+.rt-meta{display:flex;gap:18px;flex-wrap:wrap;padding-top:16px;border-top:1px solid rgba(255,255,255,0.14);margin-bottom:20px}
+.rt-m{display:flex;flex-direction:column;gap:2px}
+.rt-m .v{font-size:12px;font-weight:400;color:var(--cream)}
+.rt-m .k{font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(253,250,246,0.5)}
+.rt-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rt-price{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--cream)}
+.rt-price sub{font-size:10px;font-family:'Jost',sans-serif;font-weight:300;color:rgba(253,250,246,0.5);vertical-align:baseline}
+.rt-cta{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;border-radius:100px;padding:9px 18px;cursor:pointer;touch-action:manipulation;
+  background:linear-gradient(135deg,rgba(232,168,156,0.5),rgba(232,168,156,0.26));
+  border:1px solid rgba(255,255,255,0.4);color:var(--cream);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 4px 16px rgba(180,110,95,0.28),inset 0 1px 0 rgba(255,255,255,0.45);
+  transition:all 0.25s;text-decoration:none;display:inline-flex;align-items:center}
+.rt-cta:hover{background:linear-gradient(135deg,rgba(232,168,156,0.65),rgba(232,168,156,0.4));transform:translateY(-1px);color:#fff}
+.rt-cta:active{transform:scale(0.96)}
+
+/* ═══ SUITE CARD CAROUSEL — slides floating in space ═══ */
+.sc-vis{position:relative;height:185px;overflow:hidden;perspective:800px}
+.sc-slide{
+  position:absolute;inset:-8%;              /* oversized so the float never shows edges */
+  opacity:0;transform:translateX(14%) scale(1.04) rotate(0.8deg);
+  transition:opacity 0.9s ease,transform 1.1s cubic-bezier(0.22,1,0.36,1);
+  pointer-events:none;
+}
+.sc-slide.active{
+  opacity:1;transform:translateX(0) scale(1) rotate(0deg);
+  animation:slideFloat 8s ease-in-out infinite;
+}
+.sc-slide.leaving{
+  opacity:0;transform:translateX(-12%) scale(1.06) rotate(-0.8deg);
+}
+@keyframes slideFloat{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  33%{transform:translateY(-5px) rotate(0.5deg) scale(1.018)}
+  66%{transform:translateY(3px) rotate(-0.4deg) scale(1.01)}
+}
+/* mood gradients — each suite cycles through times of day */
+.gm-morning{background:linear-gradient(150deg,#1A4866 0%,#3D7AA0 45%,#9CC0D4 110%)}
+.gm-noon{background:linear-gradient(160deg,#0E2A44 0%,#2E6E9E 50%,#6FA8CC 115%)}
+.gm-golden{background:linear-gradient(155deg,#1C3850 0%,#7A5A60 55%,#E8A89C 125%)}
+.gm-dusk{background:linear-gradient(165deg,#142036 0%,#4A3048 50%,#C88A88 120%)}
+.gm-night{background:linear-gradient(150deg,#081424 0%,#102A44 55%,#3A5A7C 125%)}
+/* slide mood label */
+.sc-mood{
+  position:absolute;top:12px;left:12px;z-index:3;
+  font-size:8px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(253,250,246,0.85);
+  padding:4px 11px;border-radius:100px;
+  background:rgba(10,26,42,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.25);box-shadow:inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:opacity 0.5s;
+}
+/* glass dots */
+.sc-dots{position:absolute;bottom:12px;right:12px;z-index:3;display:flex;gap:5px;padding:5px 8px;border-radius:100px;
+  background:rgba(10,26,42,0.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.2)}
+.sc-dot{width:5px;height:5px;border-radius:50%;background:rgba(253,250,246,0.35);cursor:pointer;transition:all 0.3s;border:none;padding:0}
+.sc-dot.on{background:var(--rose);transform:scale(1.3);box-shadow:0 0 8px rgba(232,168,156,0.6)}
+/* glass arrows, appear on hover */
+.sc-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--cream);
+  background:rgba(10,26,42,0.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.25);box-shadow:inset 0 1px 0 rgba(255,255,255,0.3);
+  cursor:pointer;opacity:0;transition:opacity 0.3s,background 0.25s,transform 0.2s;
+  touch-action:manipulation;
+}
+.suite-card:hover .sc-arrow{opacity:1}
+.sc-arrow:hover{background:rgba(232,168,156,0.5)}
+.sc-arrow:active{transform:translateY(-50%) scale(0.92)}
+.sc-prev{left:10px}.sc-next{right:10px}
+@media(hover:none){.sc-arrow{opacity:0.7}}
+
+/* ═══ FULL-PAGE GALLERY — floating slides over the world ═══ */
+#gallery{
+  position:fixed;inset:0;z-index:800;
+  display:none;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,rgba(10,26,42,0.6),rgba(10,26,42,0.46),rgba(64,40,48,0.44));
+  backdrop-filter:blur(30px) saturate(1.3);
+  -webkit-backdrop-filter:blur(30px) saturate(1.3);
+}
+#gallery.open{display:flex}
+.gal-stage{position:relative;width:100vw;height:min(62vh,560px);perspective:1500px;perspective-origin:50% 50%}
+/* each item is positioned by JS transform; CSS animates the move */
+.gal-item{
+  position:absolute;left:50%;top:50%;
+  width:min(42vw,520px);height:100%;
+  transform:translate(-50%,-50%);
+  transition:transform 0.9s cubic-bezier(0.22,1,0.36,1),opacity 0.6s ease,filter 0.6s ease;
+  cursor:pointer;will-change:transform;
+  transform-style:preserve-3d;
+}
+@media(max-width:680px){.gal-item{width:66vw}}
+.gal-card{
+  position:absolute;inset:0;border-radius:26px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 24px 70px rgba(4,10,18,0.5),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.gal-card::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,0.14) 0%,transparent 32%);
+}
+/* only the centered card levitates */
+.gal-item.center .gal-card{animation:galFloat 9s ease-in-out infinite}
+@keyframes galFloat{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  30%{transform:translateY(-9px) rotate(0.4deg)}
+  65%{transform:translateY(6px) rotate(-0.35deg)}
+}
+/* small label on the centered card */
+.gal-card-label{
+  position:absolute;bottom:14px;left:14px;z-index:2;
+  font-size:8.5px;font-weight:300;letter-spacing:0.22em;text-transform:uppercase;color:rgba(253,250,246,0.9);
+  padding:5px 13px;border-radius:100px;
+  background:rgba(10,26,42,0.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.25);
+  opacity:0;transition:opacity 0.5s 0.3s;
+}
+.gal-item.center .gal-card-label{opacity:1}
+/* the 10 hours of the day */
+.gma-0{background:linear-gradient(150deg,#102A44 0%,#4A6A86 50%,#D8B0A8 120%)}
+.gma-1{background:linear-gradient(155deg,#1A4866 0%,#3D7AA0 48%,#9CC0D4 115%)}
+.gma-2{background:linear-gradient(160deg,#15405E 0%,#3672A0 50%,#86B6D2 118%)}
+.gma-3{background:linear-gradient(158deg,#0E2A44 0%,#2E6E9E 52%,#6FA8CC 116%)}
+.gma-4{background:linear-gradient(152deg,#123450 0%,#3A6E92 50%,#A0B8C4 120%)}
+.gma-5{background:linear-gradient(155deg,#1C3850 0%,#7A5A60 52%,#E8A89C 122%)}
+.gma-6{background:linear-gradient(160deg,#1A2C46 0%,#8A5258 50%,#E89A8C 118%)}
+.gma-7{background:linear-gradient(162deg,#142036 0%,#4A3048 50%,#C88A88 118%)}
+.gma-8{background:linear-gradient(150deg,#0E1C32 0%,#243A58 52%,#6A7A9C 120%)}
+.gma-9{background:linear-gradient(148deg,#081424 0%,#102A44 54%,#3A5A7C 122%)}
+
+/* chrome */
+.gal-head{position:absolute;top:28px;left:36px;z-index:5}
+.gal-name{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3vw,30px);font-weight:300;color:var(--cream)}
+.gal-name em{font-style:italic;color:var(--rose)}
+.gal-sub{font-size:9px;font-weight:300;letter-spacing:0.24em;text-transform:uppercase;color:rgba(253,250,246,0.55);margin-top:4px}
+.gal-close{
+  position:absolute;top:24px;right:28px;z-index:5;
+  width:44px;height:44px;border-radius:50%;font-size:16px;color:var(--cream);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;
+  background:linear-gradient(135deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05));
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:0 4px 18px rgba(6,16,28,0.3),inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:all 0.25s;
+}
+.gal-close:hover{background:rgba(232,168,156,0.5);transform:rotate(90deg)}
+.gal-close:active{transform:scale(0.94)}
+.gal-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+  width:52px;height:52px;border-radius:50%;font-size:14px;color:var(--cream);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;
+  background:linear-gradient(135deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05));
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,0.28);
+  box-shadow:0 4px 18px rgba(6,16,28,0.3),inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:all 0.25s;
+}
+.gal-arrow:hover{background:rgba(232,168,156,0.5);transform:translateY(-50%) translateX(0) scale(1.06)}
+.gal-arrow:active{transform:translateY(-50%) scale(0.94)}
+.gal-prev{left:max(18px,4vw)}.gal-next{right:max(18px,4vw)}
+@media(max-width:680px){.gal-arrow{width:42px;height:42px}.gal-prev{left:10px}.gal-next{right:10px}}
+.gal-foot{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:5;
+  display:flex;align-items:center;gap:16px;padding:10px 20px;border-radius:100px;
+  background:rgba(10,26,42,0.32);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.28);
+}
+.gal-mood{font-size:9px;font-weight:300;letter-spacing:0.22em;text-transform:uppercase;color:rgba(253,250,246,0.85);min-width:88px;text-align:center;transition:opacity 0.3s}
+.gal-count{font-family:'Cormorant Garamond',serif;font-size:13px;color:rgba(253,250,246,0.55);letter-spacing:0.1em}
+.gal-dots{display:flex;gap:6px}
+.gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(253,250,246,0.3);cursor:pointer;border:none;padding:0;transition:all 0.3s}
+.gal-dot.on{background:var(--rose);transform:scale(1.35);box-shadow:0 0 10px rgba(232,168,156,0.6)}
+.gal-hint{position:absolute;bottom:88px;left:50%;transform:translateX(-50%);z-index:5;font-size:8.5px;letter-spacing:0.26em;text-transform:uppercase;color:rgba(253,250,246,0.35)}
+
+/* ═══ MENU CHOREOGRAPHY — same language as the loader ═══ */
+#menu{overflow:hidden}
+/* orb + ripples behind the list */
+.mn-orb{
+  position:absolute;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%,rgba(232,168,156,0.4) 0%,rgba(232,168,156,0.12) 40%,transparent 68%);
+  filter:blur(8px);opacity:0;pointer-events:none;
+}
+#menu.open .mn-orb{animation:orbRise 1.6s cubic-bezier(0.22,1,0.36,1) forwards,orbBreathe 4.5s ease-in-out 1.4s infinite}
+#menu.leaving .mn-orb{animation:orbBurst 0.7s cubic-bezier(0.55,0,1,0.45) forwards!important}
+.mn-rings{position:absolute;width:380px;height:380px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.mn-rings span{
+  position:absolute;width:130px;height:130px;border-radius:50%;
+  border:1px solid rgba(232,168,156,0.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 0 18px rgba(232,168,156,0.12);
+  opacity:0;
+}
+#menu.open .mn-rings span{animation:ripple 3.2s cubic-bezier(0.2,0.6,0.35,1) infinite}
+#menu.open .mn-rings span:nth-child(2){animation-delay:1.05s}
+#menu.open .mn-rings span:nth-child(3){animation-delay:2.1s}
+
+/* ── ENTRANCE: items tumble in from the deep, like the loader letters ── */
+.menu-list li{opacity:0}
+#menu.open .menu-list li{
+  animation:menuItemIn 0.95s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation-delay:calc(0.15s + var(--mi) * 0.09s);
+}
+@keyframes menuItemIn{
+  from{opacity:0;transform:translateY(70px) rotate(-3deg) scale(1.25);filter:blur(10px)}
+  60%{filter:blur(0);opacity:1}
+  to{opacity:1;transform:translateY(0) rotate(0deg) scale(1);filter:blur(0)}
+}
+#menu.open .menu-sub{opacity:0;animation:labelIn 0.9s ease 0.95s forwards}
+#menu.open .menu-num{display:inline-block;opacity:0;animation:numIn 0.7s cubic-bezier(0.22,1,0.36,1) forwards;animation-delay:calc(0.4s + var(--mi,0) * 0.09s)}
+@keyframes numIn{from{opacity:0;transform:translateX(-22px)}to{opacity:0.9;transform:translateX(0)}}
+
+/* ── HOVER: subtle — letters ripple like wind on water ── */
+.menu-name .m-l{display:inline-block;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),color 0.3s;transition-delay:calc(var(--i) * 0.018s)}
+.menu-name .m-l.sp{width:0.32em}
+.menu-list a:hover .m-l{transform:translateY(-5px);color:var(--rose)}
+.menu-list a:hover .menu-num{color:var(--rose);transform:scale(1.15);transition:all 0.3s}
+.menu-list a{position:relative}
+.menu-list a::after{
+  content:'';position:absolute;left:34px;right:34px;bottom:6px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(232,168,156,0.7),transparent);
+  transform:scaleX(0);transition:transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.menu-list a:hover::after{transform:scaleX(1)}
+
+/* ── PRESS: wild — chosen word scatters, the rest fall away ── */
+#menu.leaving .menu-list li{
+  animation:itemFall 0.55s cubic-bezier(0.55,0,1,0.45) forwards;
+  animation-delay:calc(var(--mi) * 0.04s);
+}
+@keyframes itemFall{to{opacity:0;transform:translateY(80px) rotate(2.5deg) scale(0.9);filter:blur(10px)}}
+#menu.leaving .menu-list li.pressed{animation:none;opacity:1}
+#menu.leaving li.pressed .menu-num{animation:numOut 0.5s cubic-bezier(0.55,0,1,0.45) forwards}
+@keyframes numOut{to{opacity:0;transform:translateX(-30px) scale(0.8)}}
+#menu.leaving li.pressed .m-l{
+  animation:pressScatter 0.6s cubic-bezier(0.55,0,1,0.45) forwards;
+  animation-delay:calc(var(--i) * 0.03s);
+}
+@keyframes pressScatter{
+  20%{transform:translateY(6px) scale(1.06);color:var(--rose)}
+  to{transform:translateY(-130px) rotate(var(--r,8deg)) scale(1.35);opacity:0;filter:blur(12px);color:var(--rose)}
+}
+#menu.leaving .menu-sub{transition:opacity 0.3s;opacity:0}
+@media(prefers-reduced-motion:reduce){#menu.open .menu-list li,.menu-list li{animation:none;opacity:1}}
+
+/* ═══ CURSOR — the bay follows the hand ═══ */
+@media (hover:hover) and (pointer:fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+#cursor-dot,#cursor-glow{position:fixed;top:0;left:0;pointer-events:none;z-index:1400;will-change:transform;display:none}
+@media (hover:hover) and (pointer:fine){#cursor-dot,#cursor-glow{display:block}}
+#cursor-dot{
+  width:14px;height:14px;border-radius:50%;margin:-7px 0 0 -7px;
+  background:var(--rose);
+  box-shadow:0 0 14px rgba(232,168,156,0.85),inset 0 1px 0 rgba(255,255,255,0.5);
+  transition:width 0.25s,height 0.25s,margin 0.25s,background 0.25s;
+}
+#cursor-glow{
+  width:90px;height:90px;border-radius:50%;margin:-45px 0 0 -45px;
+  background:radial-gradient(circle at 50% 45%,rgba(232,168,156,0.22) 0%,rgba(232,168,156,0.07) 45%,transparent 70%);
+  filter:blur(2px);
+  animation:cursorBreathe 4s ease-in-out infinite;
+}
+@keyframes cursorBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+/* hovering anything interactive: dot blooms into a glass ring */
+#cursor-dot.hov{
+  width:42px;height:42px;margin:-21px 0 0 -21px;
+  background:rgba(232,168,156,0.12);
+  border:1px solid rgba(232,168,156,0.7);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  box-shadow:0 0 18px rgba(232,168,156,0.4),inset 0 1px 0 rgba(255,255,255,0.4);
+}
+/* pressing: squash, glow tightens */
+#cursor-dot.down{transform:scale(0.72)}
+#cursor-glow.down{animation:none;transform:scale(0.8)}
+
+/* ── CLICK BURST — ripple rings + scattering motes, loader language ── */
+.burst{position:fixed;top:0;left:0;pointer-events:none;z-index:1390}
+.burst i{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(232,168,156,0.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.25),0 0 16px rgba(232,168,156,0.2);
+  width:14px;height:14px;margin:-7px 0 0 -7px;opacity:0;
+  animation:burstRing 0.9s cubic-bezier(0.2,0.6,0.35,1) forwards;
+}
+.burst i:nth-child(2){animation-delay:0.12s}
+@keyframes burstRing{0%{transform:scale(0.4);opacity:0.95}100%{transform:scale(5.2);opacity:0}}
+.burst b{
+  position:absolute;width:4px;height:4px;border-radius:50%;margin:-2px 0 0 -2px;
+  background:var(--rose);box-shadow:0 0 8px rgba(232,168,156,0.7);
+  animation:burstMote 0.75s cubic-bezier(0.2,0.7,0.3,1) forwards;
+}
+@keyframes burstMote{
+  0%{transform:translate(0,0) scale(1);opacity:1}
+  100%{transform:translate(var(--dx),var(--dy)) scale(0.4);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){#cursor-glow{animation:none}.burst{display:none}}
+
+/* cursor trail — rose droplets falling behind the hand */
+.ctrail{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:1395;
+  width:7px;height:7px;border-radius:50%;margin:-3.5px 0 0 -3.5px;
+  background:var(--rose);
+  box-shadow:0 0 8px rgba(232,168,156,0.6);
+  animation:trailFade 0.65s cubic-bezier(0.2,0.6,0.35,1) forwards;
+}
+@keyframes trailFade{
+  0%{opacity:0.75;transform:translate(var(--tx),var(--ty)) scale(1)}
+  100%{opacity:0;transform:translate(var(--tx),calc(var(--ty) + 14px)) scale(0.25)}
+}
+@media(prefers-reduced-motion:reduce){.ctrail{display:none}}
+
+/* ═══ RETREATS FOLD-OUT — flip out, settle, float ═══ */
+.ch-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.ch-actions .ch-next{align-self:auto}
+#retreats-grid{
+  perspective:1200px;
+  max-height:0;opacity:0;overflow:hidden;
+  padding-top:0;padding-bottom:0;
+  transform:scale(0.16) translateY(-70px);
+  transform-origin:50% 0;
+  filter:blur(8px);
+  transition:
+    max-height 1.5s cubic-bezier(0.7,0,0.84,0),
+    padding 1.4s cubic-bezier(0.7,0,0.84,0),
+    opacity 1s ease,
+    transform 1.6s cubic-bezier(0.55,-0.22,0.74,0.05),
+    filter 1.1s ease;
+}
+#retreats-grid.open{
+  max-height:2600px;opacity:1;
+  padding-top:40px;padding-bottom:110px;
+  transform:scale(1) translateY(0);
+  filter:blur(0);
+  transition:
+    max-height 2s cubic-bezier(0.16,1,0.3,1),
+    padding 1.8s cubic-bezier(0.16,1,0.3,1),
+    opacity 1.2s ease,
+    transform 2s cubic-bezier(0.3,1.22,0.36,1),
+    filter 1.3s ease;
+}
+@media(max-width:680px){#retreats-grid.open{padding-top:30px;padding-bottom:80px;max-height:4200px}}
+/* closed: cards edge-on, shrunken — they flip open horizontally */
+.retreat-card{
+  opacity:0;
+  transform:translateY(-44px) rotateY(-96deg) scale(0.38);
+  transform-origin:50% 0;
+  filter:blur(10px);
+  transition:transform 1.2s cubic-bezier(0.55,-0.2,0.74,0.05),opacity 0.8s ease,filter 0.8s ease,border-color 0.35s,box-shadow 0.35s;
+  transition-delay:calc(var(--ri,0) * 0.14s);
+}
+.retreat-card:nth-child(even){transform:translateY(-44px) rotateY(96deg) scale(0.38)}
+#retreats-grid.open .retreat-card{
+  opacity:1;transform:translateY(0) rotateY(0deg) scale(1);filter:blur(0);
+  transition:transform 1.6s cubic-bezier(0.3,1.28,0.36,1),opacity 1s ease,filter 1s ease,border-color 0.35s,box-shadow 0.35s;
+  transition-delay:calc(0.15s + var(--ri,0) * 0.16s);
+  /* once settled, drift like the carousel slides */
+  animation:cardFloat 8s ease-in-out infinite;
+  animation-delay:calc(2.1s + var(--ri,0) * 0.55s);
+}
+#retreats-grid.open .retreat-card:hover{animation:none;transform:translateY(-8px);transition-delay:0s}
+@media(prefers-reduced-motion:reduce){
+  #retreats-grid{max-height:none;opacity:1;padding-top:40px;padding-bottom:110px;transform:none;filter:none}
+  .retreat-card,#retreats-grid.open .retreat-card{opacity:1;transform:none;filter:none;animation:none}
+}
+
+/* ═══ SUITES FOLD-OUT — flip out, settle, float ═══ */
+#suites-grid{
+  perspective:1200px;
+  max-height:0;opacity:0;overflow:hidden;
+  padding-top:0;padding-bottom:0;
+  transform:scale(0.16) translateY(-70px);
+  transform-origin:50% 0;
+  filter:blur(8px);
+  transition:
+    max-height 1.6s cubic-bezier(0.7,0,0.84,0),
+    padding 1.5s cubic-bezier(0.7,0,0.84,0),
+    opacity 1s ease,
+    transform 1.7s cubic-bezier(0.55,-0.22,0.74,0.05),
+    filter 1.1s ease;
+}
+#suites-grid.open{
+  max-height:9000px;opacity:1;
+  padding-top:40px;padding-bottom:110px;
+  transform:scale(1) translateY(0);
+  filter:blur(0);
+  transition:
+    max-height 2.2s cubic-bezier(0.16,1,0.3,1),
+    padding 2s cubic-bezier(0.16,1,0.3,1),
+    opacity 1.3s ease,
+    transform 2.2s cubic-bezier(0.3,1.22,0.36,1),
+    filter 1.4s ease;
+}
+@media(max-width:680px){#suites-grid.open{padding-top:30px;padding-bottom:80px;max-height:14000px}}
+.suite-card{
+  opacity:0;
+  transform:translateY(-44px) rotateY(-96deg) scale(0.38);
+  transform-origin:50% 0;
+  filter:blur(10px);
+  transition:transform 1.2s cubic-bezier(0.55,-0.2,0.74,0.05),opacity 0.8s ease,filter 0.8s ease,border-color 0.35s,box-shadow 0.35s;
+  transition-delay:calc(var(--si,0) * 0.05s);
+}
+.suite-card:nth-child(even){transform:translateY(-44px) rotateY(96deg) scale(0.38)}
+#suites-grid.open .suite-card{
+  opacity:1;transform:translateY(0) rotateY(0deg) scale(1);filter:blur(0);
+  transition:transform 1.6s cubic-bezier(0.3,1.28,0.36,1),opacity 1s ease,filter 1s ease,border-color 0.35s,box-shadow 0.35s;
+  transition-delay:calc(0.15s + var(--si,0) * 0.07s);
+  animation:cardFloat 8s ease-in-out infinite;
+  animation-delay:calc(2.3s + var(--si,0) * 0.31s);
+}
+#suites-grid.open .suite-card:hover{animation:none;transform:translateY(-8px);transition-delay:0s}
+@media(prefers-reduced-motion:reduce){
+  #suites-grid{max-height:none;opacity:1;padding-top:40px;padding-bottom:110px;transform:none;filter:none}
+  .suite-card,#suites-grid.open .suite-card{opacity:1;transform:none;filter:none;animation:none}
+}
+
+/* ═══ FLOATING FOLD BUTTON — follows you while a section is unfolded ═══ */
+#fold-fab{
+  position:fixed;bottom:26px;left:50%;z-index:565;
+  transform:translateX(-50%) translateY(90px) scale(0.85);
+  opacity:0;pointer-events:none;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 28px;border-radius:100px;
+  font-family:'Jost',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--cream);cursor:pointer;touch-action:manipulation;
+  background:linear-gradient(135deg,rgba(232,168,156,0.45) 0%,rgba(232,168,156,0.22) 60%,rgba(232,168,156,0.32) 100%);
+  backdrop-filter:blur(20px) saturate(1.3);
+  -webkit-backdrop-filter:blur(20px) saturate(1.3);
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:0 10px 32px rgba(6,16,28,0.4),inset 0 1px 0 rgba(255,255,255,0.45);
+  transition:transform 0.7s cubic-bezier(0.3,1.25,0.36,1),opacity 0.45s ease,background 0.25s;
+}
+#fold-fab.show{
+  transform:translateX(-50%) translateY(0) scale(1);
+  opacity:1;pointer-events:auto;
+}
+#fold-fab:hover{
+  background:linear-gradient(135deg,rgba(232,168,156,0.6) 0%,rgba(232,168,156,0.36) 60%,rgba(232,168,156,0.46) 100%);
+  color:#fff;
+}
+#fold-fab:active{transform:translateX(-50%) scale(0.95)}
+@media(max-width:680px){#fold-fab{bottom:20px;padding:12px 22px}}
+
+/* rail sound button stays circular inside the glass-controls system */
+#sound-chip{border-radius:50%;padding:0}
+#sound-chip:hover{transform:none}
+#sound-chip:active{transform:scale(0.92)}
+
+/* settled cards drift in space — shared by retreats and suites */
+@keyframes cardFloat{
+  0%,100%{transform:translateY(0) rotate(0deg) scale(1)}
+  33%{transform:translateY(-5px) rotate(0.35deg) scale(1.012)}
+  66%{transform:translateY(3px) rotate(-0.3deg) scale(1.006)}
+}
+
+/* ═══ INSTRUCTOR CARDS ═══ */
+.retreat-card{padding:40px 36px 36px;cursor:pointer;display:flex;flex-direction:column}
+.in-vis{position:relative;height:150px;border-radius:26px 26px 0 0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.in-avatar{
+  width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;letter-spacing:0.06em;color:var(--cream);
+  background:rgba(10,26,42,0.35);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.4);
+  box-shadow:0 8px 24px rgba(6,16,28,0.35),inset 0 1px 0 rgba(255,255,255,0.45);
+}
+.in-body{padding:26px 30px 28px;display:flex;flex-direction:column;flex:1}
+.in-skills{display:flex;gap:7px;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,0.14);margin-bottom:18px}
+.in-skills span{font-size:9.5px;font-weight:300;letter-spacing:0.12em;text-transform:uppercase;color:rgba(253,250,246,0.7);border:1px solid rgba(232,168,156,0.3);border-radius:100px;padding:4px 13px;background:rgba(232,168,156,0.07)}
+.in-meet{font-size:10px;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--rose);transition:letter-spacing 0.3s}
+.retreat-card:hover .in-meet{letter-spacing:0.3em}
+
+/* ═══ INSTRUCTOR PAGE — full glass overlay ═══ */
+#instructor{
+  position:fixed;inset:0;z-index:790;display:none;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(150deg,rgba(10,26,42,0.6),rgba(10,26,42,0.46),rgba(64,40,48,0.44));
+  backdrop-filter:blur(30px) saturate(1.3);
+  -webkit-backdrop-filter:blur(30px) saturate(1.3);
+}
+#instructor.open{display:flex}
+.ins-panel{
+  position:relative;width:min(860px,100%);max-height:92vh;overflow-y:auto;border-radius:30px;
+  background:linear-gradient(135deg,rgba(10,26,42,0.55) 0%,rgba(10,26,42,0.42) 55%,rgba(64,40,48,0.4) 100%);
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 30px 80px rgba(4,10,18,0.55),inset 0 1px 0 rgba(255,255,255,0.32);
+  padding:0 0 40px;
+}
+.ins-hero{position:relative;height:190px;border-radius:30px 30px 0 0;overflow:hidden;display:flex;align-items:flex-end;padding:0 40px 24px;gap:20px}
+.ins-hero .in-avatar{width:84px;height:84px;font-size:30px;flex-shrink:0}
+.ins-id h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,40px);font-weight:300;line-height:1.05;color:var(--cream)}
+.ins-id h2 em{font-style:italic;color:var(--rose)}
+.ins-role{font-size:9.5px;font-weight:300;letter-spacing:0.24em;text-transform:uppercase;color:rgba(253,250,246,0.8);margin-top:5px}
+.ins-close{
+  position:absolute;top:18px;right:18px;z-index:5;
+  width:40px;height:40px;border-radius:50%;font-size:15px;color:var(--cream);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;
+  background:rgba(10,26,42,0.4);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.3);box-shadow:inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:all 0.25s;
+}
+.ins-close:hover{background:rgba(232,168,156,0.5);transform:rotate(90deg)}
+.ins-sec{padding:30px 40px 0}
+@media(max-width:640px){.ins-hero{padding:0 22px 20px}.ins-sec{padding:26px 22px 0}}
+.ins-sec h3{font-size:10px;font-weight:400;letter-spacing:0.26em;text-transform:uppercase;color:var(--rose);margin-bottom:16px}
+.ins-bio{font-size:13px;font-weight:300;line-height:1.9;color:rgba(253,250,246,0.8)}
+/* workshops */
+.ws{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:18px 20px;border-radius:18px;margin-bottom:12px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.ws-t{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--cream);margin-bottom:4px}
+.ws-d{font-size:12px;font-weight:300;line-height:1.7;color:rgba(253,250,246,0.65);max-width:420px}
+.ws-dates{font-size:10.5px;font-weight:300;letter-spacing:0.08em;color:rgba(232,168,156,0.85);margin-top:8px}
+.ws-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.badge{font-size:9px;font-weight:400;letter-spacing:0.16em;text-transform:uppercase;padding:5px 14px;border-radius:100px;border:1px solid rgba(255,255,255,0.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.3)}
+.badge.av{background:rgba(80,130,90,0.45);color:#fff}
+.badge.so{background:rgba(150,80,80,0.35);color:rgba(253,250,246,0.75)}
+.ws-sign{
+  font-size:9px;letter-spacing:0.16em;text-transform:uppercase;border-radius:100px;padding:8px 18px;
+  background:linear-gradient(135deg,rgba(232,168,156,0.5),rgba(232,168,156,0.26));
+  border:1px solid rgba(255,255,255,0.4);color:var(--cream);text-decoration:none;display:inline-flex;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 4px 14px rgba(180,110,95,0.25),inset 0 1px 0 rgba(255,255,255,0.4);
+  transition:all 0.25s;touch-action:manipulation;
+}
+.ws-sign:hover{background:linear-gradient(135deg,rgba(232,168,156,0.65),rgba(232,168,156,0.4));color:#fff;transform:translateY(-1px)}
+.ws-sign.off{opacity:0.35;pointer-events:none}
+/* future dates */
+.fd-row{display:flex;gap:9px;flex-wrap:wrap}
+.fd{font-size:10px;font-weight:300;letter-spacing:0.08em;color:rgba(253,250,246,0.8);border:1px solid rgba(232,168,156,0.3);border-radius:100px;padding:7px 15px;background:rgba(232,168,156,0.07)}
+/* footer CTA */
+.ins-cta{display:flex;gap:12px;flex-wrap:wrap;padding:30px 40px 0}
+@media(max-width:640px){.ins-cta{padding:26px 22px 0}}
+
+/* ═══ INSTRUCTORS ═══ */
+.inst-avatar{
+  width:84px;height:84px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;font-style:italic;color:var(--cream);
+  border:1px solid rgba(255,255,255,0.35);
+  box-shadow:0 8px 24px rgba(6,16,28,0.35),inset 0 1px 0 rgba(255,255,255,0.35);
+  margin-bottom:20px;
+  text-shadow:0 1px 8px rgba(6,16,28,0.4);
+}
+.inst-disc{font-size:9px;font-weight:300;letter-spacing:0.24em;text-transform:uppercase;color:var(--rose);margin-bottom:10px}
+.inst-name{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:300;line-height:1.1;margin-bottom:12px}
+.inst-name em{font-style:italic;color:var(--rose)}
+.inst-sum{font-size:12.5px;font-weight:300;line-height:1.8;color:rgba(253,250,246,0.78);margin-bottom:20px;flex:1}
+.inst-meta{display:flex;gap:16px;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,0.14);margin-bottom:18px}
+.inst-m{display:flex;flex-direction:column;gap:2px}
+.inst-m .v{font-size:12px;font-weight:400;color:var(--cream)}
+.inst-m .k{font-size:8.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(253,250,246,0.5)}
+
+/* ── INSTRUCTOR PAGE — full glass sheet ── */
+#inst-page{
+  position:fixed;inset:0;z-index:820;display:none;align-items:center;justify-content:center;padding:18px;
+  background:linear-gradient(150deg,rgba(10,26,42,0.6),rgba(10,26,42,0.46),rgba(64,40,48,0.44));
+  backdrop-filter:blur(30px) saturate(1.3);
+  -webkit-backdrop-filter:blur(30px) saturate(1.3);
+}
+#inst-page.open{display:flex}
+.inst-sheet{
+  position:relative;width:min(920px,96vw);max-height:90vh;overflow-y:auto;
+  background:linear-gradient(135deg,rgba(10,26,42,0.55) 0%,rgba(10,26,42,0.42) 55%,rgba(64,40,48,0.4) 100%);
+  border:1px solid rgba(255,255,255,0.24);border-radius:30px;
+  box-shadow:0 30px 80px rgba(4,10,18,0.55),inset 0 1px 0 rgba(255,255,255,0.32);
+  padding:52px 54px 46px;
+  animation:mi 0.4s ease;
+}
+@media(max-width:680px){.inst-sheet{padding:34px 22px 30px;border-radius:24px}}
+.inst-sheet::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,0.1) 0%,transparent 30%)}
+.ip-head{display:flex;gap:26px;align-items:center;margin-bottom:30px;flex-wrap:wrap}
+.ip-head .inst-avatar{width:110px;height:110px;font-size:40px;margin-bottom:0}
+.ip-name{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4.5vw,44px);font-weight:300;line-height:1.05}
+.ip-name em{font-style:italic;color:var(--rose)}
+.ip-disc{font-size:10px;font-weight:300;letter-spacing:0.26em;text-transform:uppercase;color:var(--rose);margin-bottom:8px}
+.ip-loc{font-size:11px;font-weight:300;color:rgba(253,250,246,0.5);margin-top:8px;letter-spacing:0.08em}
+.ip-sec{font-size:9.5px;font-weight:400;letter-spacing:0.26em;text-transform:uppercase;color:var(--rose);margin:34px 0 14px;display:flex;align-items:center;gap:12px}
+.ip-sec::after{content:'';flex:1;height:1px;background:rgba(232,168,156,0.2)}
+.ip-skills{font-size:13px;font-weight:300;line-height:1.95;color:rgba(253,250,246,0.8)}
+.ip-skills + .ip-skills{margin-top:12px}
+/* workshops */
+.wk{
+  display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+  padding:20px 22px;border-radius:18px;margin-bottom:12px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.wk-t{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;margin-bottom:6px}
+.wk-d{font-size:12px;font-weight:300;line-height:1.7;color:rgba(253,250,246,0.7);max-width:460px}
+.wk-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.wk-badge{font-size:8.5px;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;padding:5px 14px;border-radius:100px;border:1px solid rgba(255,255,255,0.3);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.3)}
+.wk-badge.av{background:rgba(80,130,90,0.45);color:#fff}
+.wk-badge.so{background:rgba(155,65,50,0.45);color:#fff}
+.wk-sign{
+  font-size:9px;letter-spacing:0.16em;text-transform:uppercase;border-radius:100px;padding:9px 18px;
+  background:linear-gradient(135deg,rgba(232,168,156,0.5),rgba(232,168,156,0.26));
+  border:1px solid rgba(255,255,255,0.4);color:var(--cream);text-decoration:none;
+  backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(180,110,95,0.28),inset 0 1px 0 rgba(255,255,255,0.45);
+  transition:all 0.25s;cursor:pointer;
+}
+.wk-sign:hover{background:linear-gradient(135deg,rgba(232,168,156,0.65),rgba(232,168,156,0.4));color:#fff;transform:translateY(-1px)}
+.wk-sign.dis{opacity:0.4;pointer-events:none}
+/* future dates */
+.ip-dates{display:flex;gap:10px;flex-wrap:wrap}
+.ip-date{
+  font-size:11px;font-weight:300;color:var(--cream);padding:9px 18px;border-radius:100px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.2);letter-spacing:0.06em;
+}
+.ip-foot{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px;padding-top:24px;border-top:1px solid rgba(232,168,156,0.18)}
+.ip-close{
+  position:absolute;top:20px;right:22px;width:42px;height:42px;border-radius:50%;font-size:15px;color:var(--cream);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;
+  background:linear-gradient(135deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05));
+  backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,0.28);
+  box-shadow:0 4px 18px rgba(6,16,28,0.3),inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:all 0.25s;z-index:5;
+}
+.ip-close:hover{background:rgba(232,168,156,0.5);transform:rotate(90deg)}
+
+/* instructor sheet scrolls without a visible scrollbar */
+.inst-sheet{scrollbar-width:none;-ms-overflow-style:none}
+.inst-sheet::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* ═══ LANGUAGE SWITCHER ═══ */
+#lang-btn{
+  background:none;border:1px solid rgba(232,168,156,0.3);border-radius:100px;color:var(--cream);
+  padding:10px 18px;font-family:'Jost',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.2em;
+  cursor:pointer;transition:all 0.3s;touch-action:manipulation;backdrop-filter:blur(8px);margin-inline-end:12px;
+}
+#lang-btn:hover{background:var(--rose);border-color:var(--rose);color:var(--night)}
+.nav-right{display:flex;align-items:center}
+#lang-pop{
+  position:fixed;top:74px;z-index:610;min-width:170px;
+  inset-inline-end:120px;
+  background:linear-gradient(135deg,rgba(10,26,42,0.6),rgba(10,26,42,0.45),rgba(64,40,48,0.42));
+  backdrop-filter:blur(26px) saturate(1.25);
+  -webkit-backdrop-filter:blur(26px) saturate(1.25);
+  border:1px solid rgba(255,255,255,0.24);border-radius:18px;
+  box-shadow:0 16px 44px rgba(4,10,18,0.5),inset 0 1px 0 rgba(255,255,255,0.3);
+  padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px) scale(0.96);
+  transition:all 0.35s cubic-bezier(0.3,1.25,0.36,1);
+}
+#lang-pop.open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.lang-opt{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;
+  background:none;border:none;border-radius:12px;padding:11px 14px;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:12px;font-weight:300;color:rgba(253,250,246,0.8);
+  transition:background 0.2s,color 0.2s;touch-action:manipulation;text-align:start;
+}
+.lang-opt:hover{background:rgba(255,255,255,0.08);color:#fff}
+.lang-opt .lo-native{font-size:13px}
+.lang-opt .lo-check{color:var(--rose);opacity:0;font-size:11px}
+.lang-opt.active .lo-check{opacity:1}
+@media(max-width:600px){#lang-pop{inset-inline-end:84px;top:62px}}
+
+/* ═══ RTL / HEBREW ═══ */
+.rtl{direction:rtl}
+.rtl :is(h1,h2,h3,.hero-h,.ch-name,.statement h2,.menu-name,.m-name,.sc-name,.inst-name,.ip-name,.wk-t,.gal-name,.contact-card h2,.ld-word,.kd-n,.cal-ml){
+  font-family:'Fredoka','Cormorant Garamond',sans-serif;
+}
+.rtl body, .rtl .hero-sub, .rtl p, .rtl button, .rtl a, .rtl span{font-family:'Fredoka','Jost',sans-serif}
+.rtl :is(.kd-n,.sc-price,.m-price,.rt-price){font-family:'Fredoka',sans-serif}
+/* Hebrew breathes with tighter letter-spacing */
+.rtl :is(.hero-kicker,.ch-num,.ch-index li,.inst-disc,.ip-disc,.ip-sec,.sc-type,.m-type,.menu-num,.menu-sub,.cue-text,.rail-label,.kd-l,.sv-avail,.sc-avail,.wk-badge,.gal-sub,.gal-hint,.gal-mood,.cal-lbl,.spec-k,.sc-mood,.inst-m .k,.m-spec .k,#menu-btn,#lang-btn,.ch-next,.btn-book,.cl-btn,.cl-ghost,.sc-cta,.rt-cta,.wk-sign,#fold-fab){
+  letter-spacing:0.06em;
+}
+/* text alignment: flow follows dir, force the stragglers */
+.rtl .chapter-inner,.rtl .sc-body,.rtl .modal-body,.rtl .inst-sheet,.rtl .retreat-card{text-align:right}
+.rtl .contact-card,.rtl .statement-card{text-align:center}
+/* mirrored chrome */
+.rtl .gal-head{left:auto;right:36px}
+.rtl .gal-close{right:auto;left:28px}
+.rtl .ip-close{right:auto;left:22px}
+.rtl .modal-close{right:auto;left:12px}
+.rtl .sc-num{right:auto;left:16px}
+.rtl .sv-num{right:auto;left:14px}
+.rtl .sc-avail{left:auto;right:12px}
+.rtl .sc-mood{left:auto;right:12px}
+.rtl .sc-dots{right:auto;left:12px}
+.rtl #day-rail{right:auto;left:26px}
+@media(max-width:680px){.rtl #day-rail{left:14px;right:auto}}
+.rtl .menu-list a::after{left:34px;right:34px}
+.rtl .wk-right{align-items:flex-start}
+
+/* nav buttons hover like every other glass control — no solid fill */
+#menu-btn:hover,#lang-btn:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.10) 60%,rgba(232,168,156,0.14) 100%);
+  border-color:rgba(255,255,255,0.45);
+  box-shadow:0 8px 26px rgba(6,16,28,0.36),inset 0 1px 0 rgba(255,255,255,0.5);
+  transform:translateY(-1px);
+  color:var(--cream);
+}
+#menu-btn:active,#lang-btn:active{transform:scale(0.96)}
+
+/* Hebrew display type stays light and airy like the Latin serif */
+.rtl :is(h1,h2,h3,.hero-h,.ch-name,.statement h2,.m-name,.sc-name,.inst-name,.ip-name,.wk-t,.gal-name,.contact-card h2,.menu-name,.ld-word,.kd-n,.cal-ml){font-family:'Fredoka',sans-serif;font-weight:300}
+.rtl body,.rtl p,.rtl button,.rtl a,.rtl span,.rtl li{font-family:'Fredoka',sans-serif;font-weight:300}
+</style>
+</head>
+<body>
+
+<canvas id="world"></canvas>
+
+<div id="loader">
+  <div class="ld-orb"></div>
+  <div class="ld-rings"><span></span><span></span><span></span></div>
+  <span class="ld-mote" style="--x:34%;--t:7s;--dl:1.8s;--dx:27px"></span>
+  <span class="ld-mote" style="--x:64%;--t:6s;--dl:3.0s;--dx:10px"></span>
+  <span class="ld-mote" style="--x:37%;--t:7s;--dl:1.0s;--dx:41px"></span>
+  <span class="ld-mote" style="--x:64%;--t:9s;--dl:2.0s;--dx:-31px"></span>
+  <span class="ld-mote" style="--x:33%;--t:7s;--dl:4.3s;--dx:16px"></span>
+  <span class="ld-mote" style="--x:53%;--t:6s;--dl:3.4s;--dx:-42px"></span>
+  <span class="ld-mote" style="--x:24%;--t:6s;--dl:1.5s;--dx:-47px"></span>
+  <span class="ld-mote" style="--x:38%;--t:9s;--dl:3.0s;--dx:-1px"></span>
+  <span class="ld-mote" style="--x:95%;--t:9s;--dl:2.0s;--dx:23px"></span>
+  <span class="ld-mote" style="--x:60%;--t:7s;--dl:4.4s;--dx:-38px"></span>
+  <div class="ld-word"><span class="ld-l" style="--i:0;--r:-6deg">E</span><span class="ld-l" style="--i:1;--r:-9deg">L</span><span class="ld-l" style="--i:2;--r:6deg">I</span><span class="ld-l" style="--i:3;--r:14deg">A</span><span class="ld-l sp" style="--i:4"></span><span class="ld-l" style="--i:5;--r:-14deg"><em>C</em></span><span class="ld-l" style="--i:6;--r:-14deg"><em>O</em></span><span class="ld-l" style="--i:7;--r:9deg"><em>A</em></span><span class="ld-l" style="--i:8;--r:-14deg"><em>S</em></span><span class="ld-l" style="--i:9;--r:-6deg"><em>T</em></span></div>
+  <div class="ld-label">Loading the bay</div>
+  <div class="ld-bar"><i></i></div>
+</div>
+
+<nav id="nav">
+  <a href="#ch-arrival" class="nav-logo">Elia Coast<span>Residences &amp; Suites</span></a>
+  <div class="nav-right">
+    <button id="lang-btn" aria-label="Language">EN</button>
+    <button id="menu-btn">Menu</button>
+  </div>
+</nav>
+
+<div id="lang-pop" role="menu">
+  <button class="lang-opt active" data-lang="en"><span>English</span><span class="lo-check">&#10003;</span></button>
+  <button class="lang-opt" data-lang="he"><span class="lo-native">עברית</span><span class="lo-check">&#10003;</span></button>
+</div>
+
+<div id="menu">
+  <div class="mn-orb"></div>
+  <div class="mn-rings"><span></span><span></span><span></span></div>
+  <ul class="menu-list">
+    <li style="--mi:0"><a href="#ch-arrival" data-close><span class="menu-num">01</span><span class="menu-name">Arrival</span></a></li>
+    <li style="--mi:1"><a href="#ch-suites" data-close><span class="menu-num">02</span><span class="menu-name">The Suites</span></a></li>
+    <li style="--mi:2"><a href="#ch-experience" data-close><span class="menu-num">03</span><span class="menu-name">The Experience</span></a></li>
+    <li style="--mi:3"><a href="#ch-retreats" data-close><span class="menu-num">04</span><span class="menu-name">Retreats</span></a></li>
+    <li style="--mi:4"><a href="#ch-evening" data-close><span class="menu-num">05</span><span class="menu-name">The Evening</span></a></li>
+    <li style="--mi:5"><a href="#ch-contact" data-close><span class="menu-num">06</span><span class="menu-name">Contact</span></a></li>
+  </ul>
+  <div class="menu-sub">Peloponnese &middot; Greece &middot; One sea, one day</div>
+</div>
+
+<div id="day-rail">
+  <span class="rail-label">Day</span>
+  <div class="rail-track"><div class="rail-fill" id="rail-fill"></div></div>
+  <span class="rail-label">Night</span>
+  <span class="rail-divider"></span>
+  <button id="sound-chip" aria-label="Toggle ocean sound">
+    <span class="eq"><span></span><span></span><span></span></span>
+    <span id="sound-chip-label">Sound</span>
+  </button>
+</div>
+
+<div id="content">
+
+  <!-- ═══ CHAPTER 01 — ARRIVAL (morning) ═══ -->
+  <section class="screen" id="ch-arrival">
+    <div class="hero-kicker fade-rise">Chapter 01 &middot; Morning &middot; Peloponnese</div>
+    <h1 class="hero-h anim-words">You arrive<br>with the <em>morning light</em></h1>
+    <div class="scroll-cue"><div class="cue-line"></div><span class="cue-text">Scroll to discover</span></div>
+  </section>
+
+  <div class="chapter">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">01 / 06</div>
+    <h2 class="ch-name anim-words">Arrival</h2>
+    <p class="ch-desc fade-rise">The road ends where the bay begins. Whitewashed walls, a blue gate, the sound of water below. The journey dissolves the moment you see the sea.</p>
+    <ul class="ch-index fade-rise"><li>The Bay</li><li>The Light</li><li>The Quiet</li></ul>
+    <a href="#ch-suites" class="ch-next fade-rise">Next &mdash; The Suites &rarr;</a>
+  </div>
+  </div>
+
+  <div class="statement" id="st1"><div class="statement-card"><h2 class="anim-words">The sea does<br>the <em>welcoming</em><span class="sub fade-rise">Forty steps from your door</span></h2></div></div>
+
+  <!-- ═══ CHAPTER 02 — THE SUITES (midday) ═══ -->
+  <div class="chapter" id="ch-suites">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">02 / 06</div>
+    <h2 class="ch-name anim-words">The <em>Suites</em></h2>
+    <p class="ch-desc fade-rise">Sixteen private worlds above the water. Each one faces the bay; each one holds the light differently. Choose by feeling, not by floor plan.</p>
+    <ul class="ch-index fade-rise"><li>Sea View</li><li>Garden</li><li>Hillside</li><li>Family</li></ul>
+    <div class="ch-actions fade-rise">
+      <button class="ch-next" id="suites-toggle">Unfold the suites &darr;</button>
+      <a href="#ch-experience" class="ch-next">Next &mdash; The Experience &rarr;</a>
+    </div>
+  </div>
+  </div>
+
+  <div id="suites-grid"></div>
+
+  <!-- ═══ CHAPTER 03 — THE EXPERIENCE (golden hour) ═══ -->
+  <div class="chapter" id="ch-experience">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">03 / 06</div>
+    <h2 class="ch-name anim-words">The <em>Experience</em></h2>
+    <p class="ch-desc fade-rise">Afternoons here are measured in swims, not hours. The olive groves hold the heat; the water holds the cold; Epidaurus and Nafplio hold two thousand years.</p>
+    <ul class="ch-index fade-rise"><li>The Beach</li><li>The Groves</li><li>The Ruins</li><li>The Table</li></ul>
+    <a href="#ch-retreats" class="ch-next fade-rise">Next &mdash; Retreats &rarr;</a>
+  </div>
+  </div>
+
+  <div class="statement" id="st2"><div class="statement-card"><h2 class="anim-words">Three hundred days<br>of <em>sun</em><span class="sub fade-rise">And a private pebble beach below</span></h2></div></div>
+
+  <div class="keydata">
+    <div class="kd fade-rise"><div class="kd-n" data-count="16">0</div><div class="kd-l">Suites &amp; residences</div></div>
+    <div class="kd fade-rise"><div class="kd-n" data-count="300">0</div><div class="kd-l">Days of sun a year</div></div>
+    <div class="kd fade-rise"><div class="kd-n" data-count="40">0</div><div class="kd-l">Steps to the sea</div></div>
+    <div class="kd fade-rise"><div class="kd-n" data-count="4.9" data-dec="1">0</div><div class="kd-l">Guest rating</div></div>
+  </div>
+
+  
+  <!-- ═══ CHAPTER 04 — RETREATS (late afternoon) ═══ -->
+  <div class="chapter" id="ch-retreats">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">04 / 06</div>
+    <h2 class="ch-name anim-words">The <em>Retreats</em></h2>
+    <p class="ch-desc fade-rise">Our retreats are led by four practitioners we trust completely. Each hands the property a single intention — the breath, the body, the resonance, the return. Meet them, see their workshops, and write to them directly.</p>
+    <ul class="ch-index fade-rise"><li>Breathing Therapy</li><li>Yoga</li><li>Sound Healing</li><li>Rebirthing</li></ul>
+    <div class="ch-actions fade-rise">
+      <button class="ch-next" id="retreats-toggle">Meet the facilitators &darr;</button>
+      <a href="#ch-evening" class="ch-next">Next &mdash; The Evening &rarr;</a>
+    </div>
+  </div>
+  </div>
+
+  <div id="retreats-grid"></div>
+
+  <div class="statement" id="st3"><div class="statement-card"><h2 class="anim-words">Whole days,<br>given to <em>one thing</em><span class="sub fade-rise">The rarest luxury we offer</span></h2></div></div>
+
+  <!-- ═══ CHAPTER 04 — THE EVENING (dusk) ═══ -->
+  <div class="chapter" id="ch-evening">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">05 / 06</div>
+    <h2 class="ch-name anim-words">The <em>Evening</em></h2>
+    <p class="ch-desc fade-rise">The mountains across the bay turn violet. The water turns to rose-gold glass. Dinner is fish caught this morning, wine grown an hour away, and no reason to hurry.</p>
+    <ul class="ch-index fade-rise"><li>The Sunset</li><li>The Taverna</li><li>The Stars</li></ul>
+    <a href="#ch-contact" class="ch-next fade-rise">Next &mdash; Contact &rarr;</a>
+  </div>
+  </div>
+
+  <div class="statement" id="st4"><div class="statement-card"><h2 class="anim-words">The light here<br>does something <em>to you</em><span class="sub fade-rise">It slows you down. It opens things.</span></h2></div></div>
+
+  <!-- ═══ CHAPTER 05 — CONTACT (night) ═══ -->
+  <div class="chapter" id="ch-contact">
+    <div class="chapter-inner">
+    <div class="ch-num fade-rise">06 / 06</div>
+    <h2 class="ch-name anim-words">Stay <em>with us</em></h2>
+    <p class="ch-desc fade-rise">Questions about a suite, dates, or which house fits your group — write to us. We answer like neighbours, not like a front desk.</p>
+  </div>
+  </div>
+
+  <section class="screen" style="min-height:70vh">
+    <div class="contact-card fade-rise">
+      <h2>Begin your <em>stay</em></h2>
+      <p>Elia Coast Residences &amp; Suites &middot; Peloponnese, Greece<br>Sixteen suites above a private bay.</p>
+      <div class="contact-links">
+        <a href="mailto:info@eliacoast.gr" class="cl-btn">Enquire by email</a>
+        <a href="tel:+302752000000" class="cl-ghost">+30 275 200 0000</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="site-end">
+    <p>&copy; 2026 Elia Coast Residences &amp; Suites</p>
+    <p>Peloponnese &middot; Greece</p>
+  </div>
+
+</div>
+
+<button id="fold-fab" aria-label="Fold section away">Fold away &uarr;</button>
+
+
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-vis" id="m-vis"><button class="modal-close" id="modal-close-btn">&#x2715;</button></div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<div id="gallery" aria-modal="true" role="dialog">
+  <div class="gal-head">
+    <div class="gal-name" id="gal-name"></div>
+    <div class="gal-sub">Elia Coast &middot; Views through the day</div>
+  </div>
+  <button class="gal-close" id="gal-close" aria-label="Close gallery">&#x2715;</button>
+  <button class="gal-arrow gal-prev" id="gal-prev" aria-label="Previous">&#9664;</button>
+  <div class="gal-stage" id="gal-stage"></div>
+  <button class="gal-arrow gal-next" id="gal-next" aria-label="Next">&#9654;</button>
+  <div class="gal-hint">Scroll &middot; swipe &middot; arrow keys</div>
+  <div class="gal-foot">
+    <span class="gal-count" id="gal-count">01 / 05</span>
+    <div class="gal-dots" id="gal-dots"></div>
+    <span class="gal-mood" id="gal-mood"></span>
+  </div>
+</div>
+
+<div id="instructor" aria-modal="true" role="dialog">
+  <div class="ins-panel" id="ins-panel"></div>
+</div>
+
+<div id="inst-page" aria-modal="true" role="dialog">
+  <div class="inst-sheet">
+    <button class="ip-close" id="ip-close" aria-label="Close">&#x2715;</button>
+    <div id="ip-body"></div>
+  </div>
+</div>
+
+<div id="cursor-glow"></div>
+<div id="cursor-dot"></div>
+
+<canvas id="fx-canvas"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+
+/* ═══════════════════════════════════════════════
+   ELIA COAST — One World architecture (Sidewave)
+   The entire site lives inside one WebGL day:
+   morning -> midday -> golden -> dusk -> night.
+   Rules: no images, no audio files, delegated events.
+   ═══════════════════════════════════════════════ */
+
+var NIGHT = new THREE.Color('#0C2238');
+var ROSE  = new THREE.Color('#E8A89C');
+var DAY   = new THREE.Color('#4D93CE');
+
+/* ── Lenis ── */
+var lenis = null, scrollVelocity = 0, docProgress = 0;
+try {
+  lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  lenis.on('scroll', function(e) { var v = e.velocity || 0; scrollVelocity = Math.max(-38, Math.min(38, v)); });
+} catch (err) {}
+
+function updateProgress() {
+  var max = document.documentElement.scrollHeight - window.innerHeight;
+  docProgress = Math.min(1, Math.max(0, window.scrollY / max));
+  var rail = document.getElementById('rail-fill');
+  if (rail) rail.style.height = (docProgress * 100) + '%';
+}
+window.addEventListener('scroll', updateProgress);
+
+/* ── World renderer ── */
+var canvas = document.getElementById('world');
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+
+/* Fit the drawing buffer to the canvas's CSS box — CSS owns the size.
+   Called every frame: catches window resize, zoom, dpr changes, URL-bar
+   collapse on mobile. The buffer can never mismatch the visible canvas. */
+function fitRenderer(r, uniforms) {
+  var c = r.domElement;
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  var w = Math.floor(c.clientWidth * dpr);
+  var h = Math.floor(c.clientHeight * dpr);
+  if (c.width !== w || c.height !== h) {
+    r.setSize(c.clientWidth, c.clientHeight, false); /* false: no inline styles */
+    if (uniforms) uniforms.uRes.value.set(w, h);
+  }
+}
+
+var scene = new THREE.Scene();
+var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+/* ═══ SILK-WATER FIELD — full-screen fragment shader, zero geometry ═══
+   Slow-flowing layered noise in night-blue and rose.
+   The day cycle lives in the uniforms; nothing is literal. */
+
+var worldUniforms = {
+  uTime: { value: 0 },
+  uDayCycle: { value: 0 },
+  uRes: { value: new THREE.Vector2(1, 1) }, /* set by fitRenderer in buffer px */
+  uLean: { value: 0 },
+  uRose: { value: new THREE.Vector3(ROSE.r, ROSE.g, ROSE.b) },
+  uNight: { value: new THREE.Vector3(NIGHT.r, NIGHT.g, NIGHT.b) },
+  uDay: { value: new THREE.Vector3(DAY.r, DAY.g, DAY.b) }
+};
+
+var worldMat = new THREE.ShaderMaterial({
+  uniforms: worldUniforms,
+  depthWrite: false,
+  vertexShader: 'void main(){ gl_Position = vec4(position, 1.0); }',
+  fragmentShader: [
+    'precision highp float;',
+    'uniform float uTime;',
+    'uniform float uDayCycle;',
+    'uniform vec2 uRes;',
+    'uniform float uLean;',
+    'uniform vec3 uRose;',
+    'uniform vec3 uNight;',
+    'uniform vec3 uDay;',
+    '',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+    'float vnoise(vec2 p){',
+    '  vec2 i = floor(p); vec2 f = fract(p);',
+    '  vec2 u = f * f * (3.0 - 2.0 * f);',
+    '  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),',
+    '             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);',
+    '}',
+    '/* flowing fbm: domain-warped so it streams like silk, not boils like lava */',
+    'float fbm(vec2 p){',
+    '  float v = 0.0; float a = 0.5;',
+    '  mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);',
+    '  for (int i = 0; i < 5; i++) {',
+    '    v += a * vnoise(p);',
+    '    p = rot * p * 2.03;',
+    '    a *= 0.5;',
+    '  }',
+    '  return v;',
+    '}',
+    '',
+    'void main(){',
+    '  vec2 uv = gl_FragCoord.xy / uRes;',
+    '  vec2 p = uv;',
+    '  p.x *= uRes.x / uRes.y;',
+    '  p.x += uLean * 0.4;          /* scroll velocity drifts the field */',
+    '',
+    '  float c = uDayCycle;',
+    '  float duskAmt = smoothstep(0.45, 0.85, c);',
+    '  float nightAmt = smoothstep(0.78, 1.0, c);',
+    '',
+    '  /* ── silk flow: two warped noise fields drifting against each other ── */',
+    '  float t = uTime * 0.045;',
+    '  vec2 q = vec2(fbm(p * 1.6 + vec2(t, -t * 0.6)),',
+    '                fbm(p * 1.6 + vec2(-t * 0.8, t * 0.5) + 5.2));',
+    '  vec2 r = vec2(fbm(p * 1.6 + q * 1.8 + vec2(1.7, 9.2) + t * 0.4),',
+    '                fbm(p * 1.6 + q * 1.8 + vec2(8.3, 2.8) - t * 0.3));',
+    '  float silk = fbm(p * 1.6 + r * 1.6);',
+    '',
+    '  /* second, finer layer for shimmer */',
+    '  float fine = fbm(p * 5.0 + r * 2.5 - t * 1.2) * 0.5;',
+    '',
+    '  /* ── base palette through the day ── */',
+    '  vec3 deep = mix(uNight, uDay * 0.55, 0.35);          /* deep water */',
+    '  deep = mix(deep, uNight * 0.7, nightAmt);',
+    '  vec3 lightCol = mix(uDay, uRose * 0.92, duskAmt) * 0.82; /* lit water, capped */',
+    '  lightCol = mix(lightCol, uNight * 2.2, nightAmt * 0.8);',
+    '',
+    '  vec3 col = mix(deep, lightCol, smoothstep(0.25, 0.85, silk + fine * 0.4));',
+    '',
+    '  /* ── rose veins: bright threads where the two fields shear ── */',
+    '  float vein = abs(silk - fbm(p * 1.6 + q * 1.8 + 0.08));',
+    '  vein = 1.0 - smoothstep(0.0, 0.09, vein);',
+    '  vec3 veinCol = mix(vec3(1.0, 0.97, 0.9), uRose * 1.35, duskAmt + 0.25);',
+    '  col += veinCol * vein * (0.05 + duskAmt * 0.08) * (1.0 - nightAmt * 0.55);',
+    '',
+    '  /* ── sun presence: a soft glow drifting down through the day ── */',
+    '  float sunY = 0.72 - c * 0.55;',
+    '  vec2 sunPos = vec2(0.62 - c * 0.18, sunY);',
+    '  vec2 sp = uv - sunPos;',
+    '  sp.x *= uRes.x / uRes.y;',
+    '  float sunGlow = exp(-dot(sp, sp) * 6.5);',
+    '  float sunVis = 1.0 - smoothstep(0.82, 0.94, c);',
+    '  vec3 sunCol = mix(vec3(1.0, 0.96, 0.86), uRose * 1.4, duskAmt);',
+    '  col += sunCol * sunGlow * (0.18 + duskAmt * 0.2) * sunVis;',
+    '  /* glow catches the silk threads near it */',
+    '  col += sunCol * vein * exp(-dot(sp, sp) * 3.0) * 0.22 * sunVis;',
+    '',
+    '  /* ── vertical depth: darker toward the bottom, like looking into water ── */',
+    '  col *= mix(1.0, 0.55, pow(1.0 - uv.y, 1.6) * 0.7);',
+    '',
+    '  /* ── stars at night, only in the upper field ── */',
+    '  float star = step(0.9986, hash(floor(uv * vec2(420.0, 280.0))));',
+    '  float tw = 0.55 + 0.45 * sin(uTime * 2.2 + hash(floor(uv * 380.0)) * 40.0);',
+    '  col += vec3(0.85, 0.9, 1.0) * star * tw * nightAmt * smoothstep(0.45, 0.95, uv.y);',
+    '',
+    '  /* ── tone-map: exposure trim + soft shoulder. The field can never blow out. ── */',
+    '  col *= 0.86;',
+    '  float lum = max(col.r, max(col.g, col.b));',
+    '  float knee = max(lum - 0.72, 0.0);',
+    '  col *= 1.0 - knee * 0.55;',
+    '',
+    '  /* gentle vignette */',
+    '  float vig = smoothstep(1.25, 0.35, length(uv - 0.5));',
+    '  col *= 0.82 + vig * 0.18;',
+    '',
+    '  /* fine grain to kill banding (the professional finish) */',
+    '  col += (hash(gl_FragCoord.xy + uTime) - 0.5) * 0.018;',
+    '',
+    '  gl_FragColor = vec4(col, 1.0);',
+    '}'
+  ].join('\n')
+});
+
+scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), worldMat));
+
+/* render loop: uniforms only */
+var camLean = 0;
+function frame() {
+  requestAnimationFrame(frame);
+  fitRenderer(renderer, worldUniforms);
+  camLean += ((scrollVelocity * 0.0025) - camLean) * 0.07;
+  scrollVelocity *= 0.92;
+  worldUniforms.uTime.value = performance.now() * 0.001;
+  worldUniforms.uDayCycle.value = docProgress;
+  worldUniforms.uLean.value = camLean;
+  renderer.render(scene, camera);
+}
+frame();
+
+/* sizing handled per-frame by fitRenderer */
+
+/* ── FX wipe (Lusion dissolve, kept) ── */
+var fxCanvas = document.getElementById('fx-canvas');
+var fxRenderer = new THREE.WebGLRenderer({ canvas: fxCanvas, alpha: true });
+var fxScene = new THREE.Scene();
+var fxCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+var fxU = {
+  uProgress: { value: 0 }, uTime: { value: 0 },
+  uRose: { value: new THREE.Vector3(ROSE.r, ROSE.g, ROSE.b) },
+  uNight: { value: new THREE.Vector3(NIGHT.r, NIGHT.g, NIGHT.b) }
+};
+fxScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+  uniforms: fxU, transparent: true, depthWrite: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }',
+  fragmentShader: [
+    'uniform float uProgress; uniform float uTime;',
+    'uniform vec3 uRose; uniform vec3 uNight;',
+    'varying vec2 vUv;',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+    'float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);',
+    '  return mix(mix(hash(i), hash(i+vec2(1,0)), u.x), mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y); }',
+    'float fbm(vec2 p){ float v = 0.0; float a = 0.5; for(int i=0;i<4;i++){ v += a*vnoise(p); p *= 2.1; a *= 0.5; } return v; }',
+    'void main(){',
+    '  if (uProgress <= 0.001) discard;',
+    '  float n = fbm(vUv * 5.0 + uTime * 0.08);',
+    '  float sweep = vUv.y * 0.6 + n * 0.55;',
+    '  float mask = 1.0 - smoothstep(uProgress * 1.45 - 0.25, uProgress * 1.45, sweep);',
+    '  float rim = smoothstep(0.0, 0.12, mask) * (1.0 - smoothstep(0.12, 0.3, mask));',
+    '  vec3 col = mix(uNight, uRose, rim * 1.6);',
+    '  gl_FragColor = vec4(col, mask);',
+    '}'
+  ].join('\n')
+})));
+var fxActive = false;
+function fxLoop() { requestAnimationFrame(fxLoop); if (!fxActive) return; fitRenderer(fxRenderer, null); fxU.uTime.value = performance.now()*0.001; fxRenderer.render(fxScene, fxCam); }
+fxLoop();
+function shaderWipe(mid) {
+  fxActive = true;
+  gsap.timeline({ onComplete: function() { fxActive = false; fxRenderer.clear(); } })
+    .to(fxU.uProgress, { value: 1, duration: 0.6, ease: 'power3.in' })
+    .add(function() { if (mid) mid(); })
+    .to(fxU.uProgress, { value: 0, duration: 0.8, ease: 'power3.out' }, '+=0.05');
+}
+
+
+
+/* ═══ I18N CORE ═══ */
+var LANG = 'en';
+var UIS = {
+  menu:{en:'Menu',he:'תפריט'}, close:{en:'Close',he:'סגירה'},
+  reserve:{en:'Reserve &rarr;',he:'הזמינו &larr;'},
+  gallery:{en:'Gallery &#9670;',he:'גלריה &#9670;'},
+  perNight:{en:'per night &middot; min. 2 nights',he:'ללילה &middot; מינימום 2 לילות'},
+  availJul:{en:'Availability &mdash; July 2025',he:'זמינות &mdash; יולי 2025'},
+  demo:{en:'demo',he:'דמו'}, live:{en:'Live',he:'חי'},
+  sleeping:{en:'Sleeping',he:'שינה'}, bathrooms:{en:'Bathrooms',he:'חדרי רחצה'},
+  guests:{en:'Guests',he:'אורחים'}, size:{en:'Size',he:'גודל'},
+  upTo:{en:'Up to ',he:'עד '},
+  bedroom:{en:' bedroom',he:' חדר שינה'}, bedrooms:{en:' bedrooms',he:' חדרי שינה'},
+  bathroom:{en:' bathroom',he:' חדר רחצה'}, bathroomsN:{en:' bathrooms',he:' חדרי רחצה'},
+  availableB:{en:'Available',he:'פנוי'}, bookedB:{en:'Booked',he:'תפוס'},
+  fewDates:{en:'Few dates left',he:'נותרו תאריכים בודדים'},
+  bed:{en:' bed',he:' מיטה'}, bath:{en:' bath',he:' אמבט'}, guestsS:{en:' guests',he:' אורחים'},
+  details:{en:'View &rarr;',he:'פרטים &larr;'},
+  eliaPelo:{en:'Elia Coast &middot; Peloponnese',he:'אליה קוסט &middot; פלופונס'},
+  curWorkshops:{en:'Current workshops',he:'סדנאות נוכחיות'},
+  futureDates:{en:'Future dates',he:'תאריכים עתידיים'},
+  about:{en:'About ',he:'על '},
+  soldOut:{en:'Sold out',he:'אזל'},
+  signUp:{en:'Sign up &rarr;',he:'הרשמה &larr;'},
+  sendEnq:{en:'Send an enquiry',he:'שליחת פנייה'},
+  resident:{en:'Elia Coast resident facilitator',he:'מנחה הבית של אליה קוסט'},
+  workshopsN:{en:' workshops',he:' סדנאות'},
+  meet:{en:'Meet ',he:'הכירו את '},
+  meetInst:{en:'Meet the facilitators &darr;',he:'הכירו את המנחים &darr;'},
+  unfoldSuites:{en:'Unfold the suites &darr;',he:'פתחו את הסוויטות &darr;'},
+  foldAway:{en:'Fold away &uarr;',he:'קפלו חזרה &uarr;'}
+};
+function UI(k) { return (UIS[k] && UIS[k][LANG]) || (UIS[k] && UIS[k].en) || ''; }
+
+/* ═══════════════════════════════════════════════════════════
+   BOOKING CONFIGURATION — per-suite payments & calendars
+   ═══════════════════════════════════════════════════════════
+   Each suite in SUITES below has two connection fields:
+
+   bookingUrl : where the Reserve button sends the guest.
+     Can be different per suite — e.g. a Stripe Payment Link,
+     an Airbnb / Booking.com listing, or a channel-manager
+     booking page (Smoobu, Lodgify, Beds24, Hostaway...).
+     Example:  bookingUrl:"https://buy.stripe.com/xxxx"
+     While null, Reserve opens a pre-filled email enquiry
+     to BOOKING_EMAIL instead — nothing is ever a dead end.
+
+   icalUrl : this suite's availability feed (iCal export from
+     Airbnb / Booking / Google Calendar / channel manager).
+     Browsers can't fetch these directly (CORS), so when ready,
+     point ICAL_PROXY at a tiny relay (free Cloudflare Worker)
+     and booked days will be read live per suite.
+     While null, the demo bookedDays array is shown.
+   ═══════════════════════════════════════════════════════════ */
+var BOOKING_EMAIL = 'reservations@eliacoast.gr';
+var ICAL_PROXY = null; /* e.g. 'https://your-worker.workers.dev/?feed=' */
+
+/* ── SUITES ── */
+var SUITES = [
+  {id:1,name:"Sea View <em>Suite</em>",type:"Sea View Suite",price:220,guests:2,beds:1,baths:1,sqm:45,desc:"First floor, unobstructed sea view. The terrace faces due west.",amenities:["Sea terrace","AC","Wifi","Daily linen"],avail:"available",bookedDays:[5,6,14,15,22,23],bookingUrl:null,icalUrl:null},
+  {id:2,name:"Sea View <em>Superior</em>",type:"Sea View Suite Superior",price:245,guests:2,beds:1,baths:1,sqm:55,desc:"More space, same incomparable view. A wider terrace and seating nook.",amenities:["Wide terrace","Seating area","AC","Wifi"],avail:"available",bookedDays:[3,4,11,12,19,20],bookingUrl:null,icalUrl:null},
+  {id:3,name:"Garden <em>House</em>",type:"Garden House",price:280,guests:4,beds:2,baths:1,sqm:80,desc:"A standalone house within the olive grove. Garden terrace, full kitchen.",amenities:["Private garden","Kitchen","AC","BBQ"],avail:"available",bookedDays:[3,4,10,11,20,21,28,29],bookingUrl:null,icalUrl:null},
+  {id:4,name:"Beach <em>Residence</em>",type:"Beach Residence",price:310,guests:4,beds:2,baths:2,sqm:90,desc:"Stone steps lead directly to the private pebble beach below.",amenities:["Beach access","Sea view","AC","Outdoor shower"],avail:"limited",bookedDays:[1,2,3,8,9,15,16,17,22,23,24,29,30],bookingUrl:null,icalUrl:null},
+  {id:5,name:"Sunset <em>Penthouse</em>",type:"Penthouse Suite",price:380,guests:3,beds:2,baths:1,sqm:70,desc:"Top floor, wraparound terrace, the best sunset on the property.",amenities:["Panoramic terrace","360 views","AC","Champagne"],avail:"available",bookedDays:[7,8,13,14,21,22],bookingUrl:null,icalUrl:null},
+  {id:6,name:"Courtyard <em>Suite</em>",type:"Courtyard Suite",price:195,guests:2,beds:1,baths:1,sqm:50,desc:"A private whitewashed courtyard with bougainvillea and terracotta.",amenities:["Courtyard","Garden","AC","Wifi"],avail:"available",bookedDays:[4,5,12,13,25,26],bookingUrl:null,icalUrl:null},
+  {id:7,name:"Courtyard <em>Superior</em>",type:"Courtyard Suite Superior",price:215,guests:3,beds:1,baths:1,sqm:62,desc:"Generous terrace, stone outdoor table, garden paths to the sea.",amenities:["Large terrace","Garden","AC","Wifi"],avail:"available",bookedDays:[2,3,9,10,18,19,27,28],bookingUrl:null,icalUrl:null},
+  {id:8,name:"Olive Grove <em>Villa</em>",type:"Villa",price:420,guests:8,beds:4,baths:2,sqm:180,desc:"Full villa among ancient olives. Covered terrace, outdoor kitchen.",amenities:["Outdoor kitchen","Pool","AC","Parking"],avail:"limited",bookedDays:[2,3,4,9,10,17,18,24,25,26],bookingUrl:null,icalUrl:null},
+  {id:9,name:"Classic <em>Room</em>",type:"Classic Room",price:155,guests:2,beds:1,baths:1,sqm:35,desc:"Simple, honest, perfectly placed. A small balcony over the sea path.",amenities:["Balcony","Sea path","AC","Wifi"],avail:"available",bookedDays:[6,7,16,17,24,25],bookingUrl:null,icalUrl:null},
+  {id:10,name:"Classic <em>Superior</em>",type:"Classic Room Superior",price:175,guests:2,beds:1,baths:1,sqm:42,desc:"The same honest simplicity with a wider balcony facing the sea.",amenities:["Large balcony","Sea view","AC","Wifi"],avail:"available",bookedDays:[4,5,13,14,22,23],bookingUrl:null,icalUrl:null},
+  {id:11,name:"Family <em>Suite</em>",type:"Family Suite",price:260,guests:5,beds:2,baths:2,sqm:95,desc:"Two connecting rooms, shared terrace, the beach a short walk down.",amenities:["Connecting rooms","Terrace","Garden","AC"],avail:"available",bookedDays:[8,9,19,20,27,28],bookingUrl:null,icalUrl:null},
+  {id:12,name:"Family <em>Villa</em>",type:"Family Villa",price:330,guests:6,beds:2,baths:2,sqm:115,desc:"Standalone villa for families. Garden, kids' space, path to the beach.",amenities:["Garden","Kids area","Kitchen","AC"],avail:"available",bookedDays:[5,6,7,14,15,21,22],bookingUrl:null,icalUrl:null},
+  {id:13,name:"Hillside <em>Suite</em>",type:"Hillside Suite",price:235,guests:2,beds:1,baths:1,sqm:52,desc:"Higher on the slope — sea to one side, the ancient Argolid behind.",amenities:["Panoramic view","Hill terrace","AC","Wifi"],avail:"available",bookedDays:[3,4,12,13,24,25],bookingUrl:null,icalUrl:null},
+  {id:14,name:"Hillside <em>Superior</em>",type:"Hillside Suite Superior",price:285,guests:2,beds:1,baths:1,sqm:68,desc:"Split-level with an outdoor soaking tub. The most private terrace.",amenities:["Soaking tub","Split-level","AC","Wifi"],avail:"limited",bookedDays:[1,2,9,10,16,17,23,24],bookingUrl:null,icalUrl:null},
+  {id:15,name:"Studio <em>by the Sea</em>",type:"Sea Studio",price:140,guests:2,beds:1,baths:1,sqm:30,desc:"Compact, open-plan, kitchenette — the sea a few steps away.",amenities:["Sea steps away","Kitchenette","AC","Wifi"],avail:"available",bookedDays:[7,8,15,16,23,24],bookingUrl:null,icalUrl:null},
+  {id:16,name:"Accessible <em>Suite</em>",type:"Accessible Suite",price:195,guests:2,beds:1,baths:1,sqm:52,desc:"Wide doorways, roll-in shower, ground floor. No compromises.",amenities:["Accessible","Roll-in shower","Ground floor","AC"],avail:"available",bookedDays:[6,7,14,15,22,23],bookingUrl:null,icalUrl:null}
+];
+
+var cY = 2025, cM = 6, activeSuite = null;
+
+var CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var CAL_DOWS = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+function buildCal(bookedDays) {
+  var months = CAL_MONTHS;
+  var dows = CAL_DOWS;
+  var dim = new Date(cY, cM+1, 0).getDate();
+  var fd = new Date(cY, cM, 1).getDay(); fd = fd===0?6:fd-1;
+  var cells = '';
+  for (var i=0;i<fd;i++) cells += '<div class="cal-d e"></div>';
+  for (var d=1;d<=dim;d++) {
+    var b = bookedDays.indexOf(d) !== -1;
+    cells += '<div class="cal-d '+(b?'b':'a')+'">'+d+'</div>';
+  }
+  return '<div class="calendar"><div class="cal-head"><button class="cal-btn" id="cal-prev">&#9664;</button><div class="cal-ml">'+months[cM]+' '+cY+'</div><button class="cal-btn" id="cal-next">&#9654;</button></div><div class="cal-grid">'+dows.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join('')+cells+'</div><div class="cal-legs"><div class="cal-leg"><div class="leg-sq leg-a"></div>'+UI('availableB')+'</div><div class="cal-leg"><div class="leg-sq leg-b"></div>'+UI('bookedB')+'</div></div></div>';
+}
+function refreshCal() {
+  if (!activeSuite) return;
+  var el = document.getElementById('mcal');
+  if (el) { el.innerHTML = buildCal(activeSuite.bookedDays); bindCalButtons(); }
+}
+function bindCalButtons() {
+  var prev = document.getElementById('cal-prev');
+  var next = document.getElementById('cal-next');
+  if (prev) prev.addEventListener('click', function(e) { e.stopPropagation(); cM--; if(cM<0){cM=11;cY--;} refreshCal(); });
+  if (next) next.addEventListener('click', function(e) { e.stopPropagation(); cM++; if(cM>11){cM=0;cY++;} refreshCal(); });
+}
+
+
+
+/* ═══ FULL-PAGE GALLERY — 10-view coverflow, centre selected ═══ */
+var DAY_HOURS = [
+  {g:'gma-0',label:'First light'},
+  {g:'gma-1',label:'Morning'},
+  {g:'gma-2',label:'Late morning'},
+  {g:'gma-3',label:'Midday'},
+  {g:'gma-4',label:'Afternoon'},
+  {g:'gma-5',label:'Golden hour'},
+  {g:'gma-6',label:'Sunset'},
+  {g:'gma-7',label:'Dusk'},
+  {g:'gma-8',label:'Blue hour'},
+  {g:'gma-9',label:'Night'}
+];
+var gal = { open: false, idx: 4, count: DAY_HOURS.length, lastNav: 0 };
+
+function galRender(suite) {
+  document.getElementById('gal-name').innerHTML = suite.name;
+  var stage = document.getElementById('gal-stage');
+  var html = '';
+  for (var i = 0; i < DAY_HOURS.length; i++) {
+    html += '<div class="gal-item" data-gitem="'+i+'">'
+          + '<div class="gal-card '+DAY_HOURS[i].g+'">'
+          + '<span class="gal-card-label">'+DAY_HOURS[i].label+'</span>'
+          + '</div></div>';
+  }
+  stage.innerHTML = html;
+  var dots = '';
+  for (var d = 0; d < DAY_HOURS.length; d++) {
+    dots += '<button class="gal-dot'+(d===gal.idx?' on':'')+'" data-gdot="'+d+'" aria-label="View '+(d+1)+'"></button>';
+  }
+  document.getElementById('gal-dots').innerHTML = dots;
+  gal.idx = 4; /* open on Afternoon, both sides populated */
+  galLayout(true);
+  galSync();
+}
+
+/* position every item relative to the selected index — CSS animates the moves */
+function galLayout(instant) {
+  var items = document.querySelectorAll('.gal-item');
+  var isMobile = window.innerWidth < 680;
+  var cardW = isMobile ? window.innerWidth * 0.66 : Math.min(window.innerWidth * 0.42, 520);
+  items.forEach(function(item, i) {
+    var o = i - gal.idx;            /* offset from centre */
+    var ao = Math.abs(o);
+    var sign = o === 0 ? 0 : (o > 0 ? 1 : -1);
+    /* ── curved amphitheater ──
+       side cards rotate to face the centre and recede in depth,
+       so the strip bows away like a panorama around the viewer */
+    var x = sign * (cardW * 0.60 + Math.max(0, ao - 1) * cardW * 0.21);
+    var rotY = -sign * Math.min(52, 24 + (ao - 1) * 9);   /* inner edge toward viewer */
+    var z = -(ao * 95 + Math.max(0, ao - 1) * 35);        /* deeper with distance */
+    var scale = o === 0 ? 1 : Math.max(0.42, 0.66 - (ao - 1) * 0.05);
+    var opacity = o === 0 ? 1 : Math.max(0.35, 0.9 - (ao - 1) * 0.11);
+    if (instant) item.style.transition = 'none';
+    item.style.transform = 'translate(-50%,-50%) translateX(' + x + 'px) translateZ(' + z + 'px) rotateY(' + rotY + 'deg) scale(' + scale + ')';
+    item.style.opacity = opacity;
+    item.style.zIndex = 100 - ao;
+    item.style.filter = o === 0 ? 'none' : 'brightness(' + (0.92 - ao * 0.07) + ')';
+    item.classList.toggle('center', o === 0);
+    if (instant) {
+      void item.offsetWidth; /* flush so the next change animates */
+      item.style.transition = '';
+    }
+  });
+}
+
+function galSync() {
+  document.getElementById('gal-count').textContent = ('0'+(gal.idx+1)).slice(-2)+' / '+gal.count;
+  var moodEl = document.getElementById('gal-mood');
+  moodEl.style.opacity = '0';
+  setTimeout(function() { moodEl.textContent = DAY_HOURS[gal.idx].label; moodEl.style.opacity = '1'; }, 220);
+  var dots = document.querySelectorAll('.gal-dot');
+  dots.forEach(function(d, i) { d.classList.toggle('on', i === gal.idx); });
+}
+
+function galGoto(next) {
+  var now = performance.now();
+  if (now - gal.lastNav < 380) return;
+  next = Math.max(0, Math.min(gal.count - 1, next));
+  if (next === gal.idx) return;
+  gal.lastNav = now;
+  gal.idx = next;
+  galLayout(false);
+  galSync();
+}
+
+function openGallery(suite) {
+  galRender(suite);
+  shaderWipe(function() {
+    document.getElementById('gallery').classList.add('open');
+    gal.open = true;
+    galLayout(true); /* re-measure once visible */
+  });
+}
+function closeGallery() {
+  shaderWipe(function() {
+    document.getElementById('gallery').classList.remove('open');
+    gal.open = false;
+  });
+}
+
+document.getElementById('gal-close').addEventListener('click', closeGallery);
+document.getElementById('gal-prev').addEventListener('click', function() { galGoto(gal.idx - 1); });
+document.getElementById('gal-next').addEventListener('click', function() { galGoto(gal.idx + 1); });
+document.getElementById('gal-dots').addEventListener('click', function(e) {
+  var dot = e.target.closest('.gal-dot');
+  if (dot) galGoto(parseInt(dot.getAttribute('data-gdot'), 10));
+});
+/* click any small card to bring it to centre */
+document.getElementById('gal-stage').addEventListener('click', function(e) {
+  var item = e.target.closest('.gal-item');
+  if (item) galGoto(parseInt(item.getAttribute('data-gitem'), 10));
+});
+
+/* scroll navigates */
+window.addEventListener('wheel', function(e) {
+  if (!gal.open) return;
+  e.preventDefault();
+  if (Math.abs(e.deltaY) < 12 && Math.abs(e.deltaX) < 12) return;
+  var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  galGoto(gal.idx + (d > 0 ? 1 : -1));
+}, { passive: false });
+
+/* swipe navigates */
+var galTouchX = 0, galTouchY = 0;
+document.getElementById('gallery').addEventListener('touchstart', function(e) {
+  galTouchX = e.touches[0].clientX; galTouchY = e.touches[0].clientY;
+}, { passive: true });
+document.getElementById('gallery').addEventListener('touchend', function(e) {
+  if (!gal.open) return;
+  var dx = e.changedTouches[0].clientX - galTouchX;
+  var dy = e.changedTouches[0].clientY - galTouchY;
+  var d = Math.abs(dx) > Math.abs(dy) ? -dx : -dy;
+  if (Math.abs(d) > 40) galGoto(gal.idx + (d > 0 ? 1 : -1));
+}, { passive: true });
+
+/* arrow keys */
+document.addEventListener('keydown', function(e) {
+  if (!gal.open) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') galGoto(gal.idx + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') galGoto(gal.idx - 1);
+});
+
+/* keep layout correct on resize while open */
+window.addEventListener('resize', function() { if (gal.open) galLayout(true); });
+
+/* ═══ CAROUSEL ENGINE — views of the suite through the day, floating ═══ */
+var MOOD_SETS = [
+  [{g:'gm-morning',label:'Morning'},{g:'gm-golden',label:'Golden hour'},{g:'gm-night',label:'Night'}],
+  [{g:'gm-noon',label:'Midday'},{g:'gm-dusk',label:'Dusk'},{g:'gm-morning',label:'Morning'}],
+  [{g:'gm-golden',label:'Golden hour'},{g:'gm-night',label:'Night'},{g:'gm-noon',label:'Midday'}],
+  [{g:'gm-dusk',label:'Dusk'},{g:'gm-morning',label:'Morning'},{g:'gm-golden',label:'Golden hour'}]
+];
+
+var carousels = []; /* {el, idx, count, labelEl, timer} */
+
+function carGoto(car, next) {
+  var slides = car.el.querySelectorAll('.sc-slide');
+  var dots = car.el.querySelectorAll('.sc-dot');
+  var count = slides.length;
+  next = ((next % count) + count) % count;
+  if (next === car.idx) return;
+  slides[car.idx].classList.remove('active');
+  slides[car.idx].classList.add('leaving');
+  (function(old) {
+    setTimeout(function() { old.classList.remove('leaving'); }, 1100);
+  })(slides[car.idx]);
+  slides[next].classList.add('active');
+  dots[car.idx].classList.remove('on');
+  dots[next].classList.add('on');
+  car.idx = next;
+  var moods = MOOD_SETS[parseInt(car.el.getAttribute('data-car'), 10) % MOOD_SETS.length];
+  var lbl = car.el.querySelector('[data-moodlabel]');
+  if (lbl) {
+    lbl.style.opacity = '0';
+    setTimeout(function() { lbl.textContent = moods[next].label; lbl.style.opacity = '1'; }, 250);
+  }
+  car.last = performance.now();
+}
+
+function initCarousels() {
+  document.querySelectorAll('.sc-vis[data-car]').forEach(function(el, i) {
+    carousels.push({ el: el, idx: 0, last: performance.now() + i * 700 }); /* staggered start */
+  });
+  /* one ticker drives all auto-advances, drifting out of sync naturally */
+  setInterval(function() {
+    var now = performance.now();
+    carousels.forEach(function(car) {
+      if (now - car.last > 4600) carGoto(car, car.idx + 1);
+    });
+  }, 400);
+}
+
+function renderGrid() {
+  var grid = document.getElementById('suites-grid');
+  var html = '';
+  SUITES.forEach(function(s, idx) {
+    var avClass = s.avail==='available'?'av':'li';
+    var avLabel = s.avail==='available'?UI('availableB'):UI('fewDates');
+    var moods = MOOD_SETS[idx % MOOD_SETS.length];
+    html += '<article class="suite-card" data-id="'+s.id+'" style="--si:'+idx+'">';
+    html += '<div class="sc-vis" data-car="'+idx+'">';
+    for (var mi = 0; mi < moods.length; mi++) {
+      html += '<div class="sc-slide '+moods[mi].g+(mi===0?' active':'')+'" data-slide="'+mi+'"></div>';
+    }
+    html += '<span class="sc-mood" data-moodlabel>'+moods[0].label+'</span>';
+    html += '<button class="sc-arrow sc-prev" data-nav="-1" aria-label="Previous view">&#9664;</button>';
+    html += '<button class="sc-arrow sc-next" data-nav="1" aria-label="Next view">&#9654;</button>';
+    html += '<div class="sc-dots">';
+    for (var di = 0; di < moods.length; di++) {
+      html += '<button class="sc-dot'+(di===0?' on':'')+'" data-dot="'+di+'" aria-label="View '+(di+1)+'"></button>';
+    }
+    html += '</div>';
+    html += '<span class="sc-num">'+(s.id<10?'0'+s.id:s.id)+'</span>';
+    html += '<div class="sc-avail '+avClass+'">'+avLabel+'</div></div>';
+    html += '<div class="sc-body">';
+    html += '<div class="sc-type">'+s.type+'</div>';
+    html += '<h3 class="sc-name">'+s.name+'</h3>';
+    html += '<p class="sc-desc">'+s.desc+'</p>';
+    html += '<div class="sc-specs"><span class="sc-spec">'+s.beds+UI('bed')+'</span><span class="sc-spec">'+s.baths+UI('bath')+'</span><span class="sc-spec">'+s.guests+UI('guestsS')+'</span><span class="sc-spec">'+s.sqm+' m\u00b2</span></div>';
+    html += '<div class="sc-foot"><div class="sc-price">\u20ac'+s.price+'<sub>'+(LANG==='he'?'/לילה':'/night')+'</sub></div><button class="sc-cta" data-id="'+s.id+'">'+UI('details')+'</button></div>';
+    html += '</div></article>';
+  });
+  grid.innerHTML = html;
+  if (grid._bound) return; grid._bound = true;
+  grid.addEventListener('click', function(e) {
+    /* carousel controls take priority and never open the modal */
+    var nav = e.target.closest('.sc-arrow');
+    if (nav) {
+      e.stopPropagation();
+      var visEl = nav.closest('.sc-vis');
+      var car = null;
+      for (var ci = 0; ci < carousels.length; ci++) { if (carousels[ci].el === visEl) { car = carousels[ci]; break; } }
+      if (car) carGoto(car, car.idx + parseInt(nav.getAttribute('data-nav'), 10));
+      return;
+    }
+    var dot = e.target.closest('.sc-dot');
+    if (dot) {
+      e.stopPropagation();
+      var visEl2 = dot.closest('.sc-vis');
+      var car2 = null;
+      for (var cj = 0; cj < carousels.length; cj++) { if (carousels[cj].el === visEl2) { car2 = carousels[cj]; break; } }
+      if (car2) carGoto(car2, parseInt(dot.getAttribute('data-dot'), 10));
+      return;
+    }
+    var el = e.target;
+    while (el && el !== grid) {
+      if (el.classList.contains('suite-card')) {
+        openModal(parseInt(el.getAttribute('data-id'), 10)); return;
+      }
+      el = el.parentElement;
+    }
+  });
+}
+
+function openModal(id) {
+  var s = null;
+  for (var i=0;i<SUITES.length;i++) { if (SUITES[i].id===id) { s=SUITES[i]; break; } }
+  if (!s) return;
+  activeSuite = s; cY=2025; cM=6;
+  var vis = document.getElementById('m-vis');
+  var mset = MOOD_SETS[(s.id-1) % MOOD_SETS.length];
+  vis.innerHTML = '<div class="'+mset[0].g+'" style="position:absolute;inset:0"></div>'
+    + '<button class="modal-close" id="modal-close-btn">&#x2715;</button>'
+    + '<div style="position:absolute;bottom:12px;left:14px;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 12px;border-radius:100px;background:rgba(8,20,34,0.5);color:#fff">'+s.type+'</div>';
+  var body = '<div class="m-type">'+UI('eliaPelo')+'</div>';
+  body += '<div class="m-name">'+s.name+'</div>';
+  body += '<p class="m-desc">'+s.desc+'</p>';
+  body += '<div class="m-div"></div>';
+  body += '<div class="m-specs">';
+  body += '<div class="m-spec"><span class="v">'+s.beds+(s.beds>1?UI('bedrooms'):UI('bedroom'))+'</span><br><span class="k">'+UI('sleeping')+'</span></div>';
+  body += '<div class="m-spec"><span class="v">'+s.baths+(s.baths>1?UI('bathroomsN'):UI('bathroom'))+'</span><br><span class="k">'+UI('bathrooms')+'</span></div>';
+  body += '<div class="m-spec"><span class="v">'+UI('upTo')+s.guests+'</span><br><span class="k">'+UI('guests')+'</span></div>';
+  body += '<div class="m-spec"><span class="v">'+s.sqm+' m\u00b2</span><br><span class="k">'+UI('size')+'</span></div>';
+  body += '</div><div class="m-div"></div>';
+  body += '<div class="cal-lbl">' + UI('availJul') + (s.icalUrl ? ' &middot; <span style="color:var(--rose)">' + UI('live') + '</span>' : ' &middot; ' + UI('demo')) + '</div>';
+  body += '<div id="mcal">'+buildCal(s.bookedDays)+'</div>';
+  body += '<div class="m-foot"><div class="m-price">\u20ac'+s.price+'<small>'+UI('perNight')+'</small></div>';
+  body += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+  body += '<button class="sc-cta" id="btn-gallery" style="padding:12px 22px;font-size:10px">'+UI('gallery')+'</button>';
+  body += '<button class="btn-book" id="btn-reserve">'+UI('reserve')+'</button></div></div>';
+  shaderWipe(function() {
+    document.getElementById('m-body').innerHTML = body;
+    document.getElementById('modal-bg').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (lenis) lenis.stop();
+    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+    var gbtn = document.getElementById('btn-gallery');
+    if (gbtn) gbtn.addEventListener('click', function(e) { e.stopPropagation(); openGallery(s); });
+    var rbtn = document.getElementById('btn-reserve');
+    if (rbtn) rbtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (s.bookingUrl) {
+        window.open(s.bookingUrl, '_blank', 'noopener');
+      } else {
+        var subj = encodeURIComponent('Reservation enquiry — ' + s.type);
+        var bodyTxt = encodeURIComponent('Hello,\n\nI would like to enquire about ' + s.type + ' (suite ' + s.id + ').\n\nDates:\nGuests:\n\nThank you');
+        window.location.href = 'mailto:' + BOOKING_EMAIL + '?subject=' + subj + '&body=' + bodyTxt;
+      }
+    });
+    bindCalButtons();
+  });
+}
+function closeModal() {
+  shaderWipe(function() {
+    document.getElementById('modal-bg').classList.remove('open');
+    document.body.style.overflow = '';
+    if (lenis) lenis.start();
+    activeSuite = null;
+  });
+}
+document.getElementById('modal-bg').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+document.addEventListener('keydown', function(e) { if (e.key==='Escape') { if (instOpen) { closeInstructor(); } else if (gal.open) { closeGallery(); } else { closeModal(); } } });
+
+
+/* ═══ MENU: split names into letters + press choreography ═══ */
+splitMenuLetters();
+
+/* ── MENU ── */
+var menuOpen = false;
+document.getElementById('menu-btn').addEventListener('click', function() {
+  menuOpen = !menuOpen;
+  document.getElementById('menu').classList.toggle('open', menuOpen);
+  this.textContent = menuOpen ? (LANG==='he'?'סגירה':'Close') : (LANG==='he'?'תפריט':'Menu');
+  if (lenis) { menuOpen ? lenis.stop() : lenis.start(); }
+});
+var menuLeaving = false;
+document.querySelectorAll('#menu a[data-close]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (menuLeaving) return;
+    menuLeaving = true;
+    var target = this.getAttribute('href');
+    var menuEl = document.getElementById('menu');
+    this.parentElement.classList.add('pressed');
+    menuEl.classList.add('leaving');
+    setTimeout(function() {
+      menuOpen = false;
+      menuLeaving = false;
+      menuEl.classList.remove('open');
+      menuEl.classList.remove('leaving');
+      var pressed = menuEl.querySelector('li.pressed');
+      if (pressed) pressed.classList.remove('pressed');
+      document.getElementById('menu-btn').textContent = (LANG==='he'?'תפריט':'Menu');
+      if (lenis) lenis.start();
+      var dest = document.querySelector(target);
+      if (dest) {
+        if (lenis && lenis.scrollTo) { lenis.scrollTo(dest, { duration: 1.6 }); }
+        else { dest.scrollIntoView({ behavior: 'smooth' }); }
+      }
+    }, 720);
+  });
+});
+
+/* ── GENERATED OCEAN SOUND ── */
+var audioCtx = null, oceanGain = null, soundOn = true; /* ocean on by default */
+function buildOcean() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var len = audioCtx.sampleRate * 4;
+  var buffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+  var data = buffer.getChannelData(0);
+  var last = 0;
+  for (var i = 0; i < len; i++) {
+    var white = Math.random() * 2 - 1;
+    last = (last + 0.02 * white) / 1.02;
+    data[i] = last * 3.5;
+  }
+  var src = audioCtx.createBufferSource();
+  src.buffer = buffer; src.loop = true;
+  var lp = audioCtx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 420; lp.Q.value = 0.6;
+  oceanGain = audioCtx.createGain(); oceanGain.gain.value = 0;
+  var swell = audioCtx.createGain(); swell.gain.value = 0.55;
+  var lfo = audioCtx.createOscillator(); lfo.frequency.value = 0.09;
+  var lfoAmp = audioCtx.createGain(); lfoAmp.gain.value = 0.3;
+  lfo.connect(lfoAmp); lfoAmp.connect(swell.gain);
+  src.connect(lp); lp.connect(swell); swell.connect(oceanGain);
+  oceanGain.connect(audioCtx.destination);
+  src.start(); lfo.start();
+}
+function applySound() {
+  var chip = document.getElementById('sound-chip');
+  chip.classList.toggle('on', soundOn);
+  document.getElementById('sound-chip-label').textContent = soundOn ? 'Listening' : 'Sound';
+  if (soundOn) {
+    if (!audioCtx) buildOcean();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    oceanGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    oceanGain.gain.linearRampToValueAtTime(0.16, audioCtx.currentTime + 2.5);
+  } else if (audioCtx) {
+    oceanGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    oceanGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
+  }
+}
+
+document.getElementById('sound-chip').addEventListener('click', function(e) {
+  e.stopPropagation();
+  soundOn = !soundOn;
+  applySound();
+});
+
+/* sound is on by default — browsers require one gesture before audio,
+   so the chip shows 'on' immediately and the ocean fades in at the
+   first touch, click, or keypress (unless the user muted first) */
+document.getElementById('sound-chip').classList.add('on');
+(function() {
+  function unlock() {
+    document.removeEventListener('pointerdown', unlock);
+    document.removeEventListener('keydown', unlock);
+    document.removeEventListener('touchstart', unlock);
+    if (soundOn) applySound();
+  }
+  document.addEventListener('pointerdown', unlock, { passive: true });
+  document.addEventListener('keydown', unlock);
+  document.addEventListener('touchstart', unlock, { passive: true });
+})();
+
+/* ── TEXT ANIMATIONS ── */
+function splitWords(el) {
+  var html = el.innerHTML;
+  var parts = html.split(/<br\s*\/?>/i);
+  var out = ''; var wi = 0;
+  parts.forEach(function(part, pi) {
+    if (pi > 0) out += '<br>';
+    var tokens = part.match(/<span class="sub.*?<\/span>|<em>.*?<\/em>|[^\s<]+/g) || [];
+    tokens.forEach(function(tok) {
+      if (tok.indexOf('class="sub') !== -1) { out += tok; return; }
+      out += '<span class="w-mask"><span class="w-inner" style="--d:' + (wi * 0.055) + 's">' + tok + '</span></span> ';
+      wi++;
+    });
+  });
+  el.innerHTML = out;
+}
+document.querySelectorAll('.anim-words').forEach(splitWords);
+
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    entry.target.classList.toggle('inview', entry.isIntersecting);
+  });
+}, { threshold: 0.18 });
+document.querySelectorAll('.anim-words, .fade-rise').forEach(function(el) { obs.observe(el); });
+
+/* key data counters */
+var kdDone = false;
+var kdObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting && !kdDone) {
+      kdDone = true;
+      document.querySelectorAll('.kd-n').forEach(function(el) {
+        var target = parseFloat(el.getAttribute('data-count'));
+        var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+        var o = { v: 0 };
+        gsap.to(o, { v: target, duration: 1.8, ease: 'power2.out',
+          onUpdate: function() { el.textContent = o.v.toFixed(dec); } });
+      });
+    }
+  });
+}, { threshold: 0.3 });
+var kdEl = document.querySelector('.keydata');
+if (kdEl) kdObs.observe(kdEl);
+
+/* ── LOADER ── */
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loader').classList.add('gone');
+    var heroH = document.querySelector('.hero-h');
+    if (heroH) heroH.classList.add('inview');
+    document.querySelectorAll('#ch-arrival .fade-rise').forEach(function(el) { el.classList.add('inview'); });
+  }, 2600);
+});
+
+
+/* ═══ CURSOR ENGINE — trailing glow, hover bloom, click bursts ═══ */
+(function() {
+  if (!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+
+  var dot = document.getElementById('cursor-dot');
+  var glow = document.getElementById('cursor-glow');
+  var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  var dx = mx, dy = my, gx = mx, gy = my;
+
+  document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; }, { passive: true });
+
+  /* the dot follows closely; the glow drifts behind like water settling */
+  /* trail: drop a rose droplet roughly every 26px of travel, pooled for perf */
+  var lastTX = mx, lastTY = my;
+  var trailPool = [], poolMax = 24;
+  function dropTrail(x, y) {
+    var t = trailPool.pop();
+    if (!t) {
+      if (document.querySelectorAll('.ctrail').length > poolMax) return;
+      t = document.createElement('div');
+      t.className = 'ctrail';
+      document.body.appendChild(t);
+    }
+    t.style.setProperty('--tx', x + 'px');
+    t.style.setProperty('--ty', y + 'px');
+    t.style.animation = 'none';
+    void t.offsetWidth;             /* restart the fade */
+    t.style.animation = '';
+    clearTimeout(t._reclaim);
+    t._reclaim = setTimeout(function() { trailPool.push(t); }, 700);
+  }
+
+  function cursorLoop() {
+    requestAnimationFrame(cursorLoop);
+    dx += (mx - dx) * 0.38;
+    dy += (my - dy) * 0.38;
+    gx += (mx - gx) * 0.10;
+    gy += (my - gy) * 0.10;
+    dot.style.transform = 'translate(' + dx + 'px,' + dy + 'px)' + (down ? ' scale(0.72)' : '');
+    glow.style.transform = 'translate(' + gx + 'px,' + gy + 'px)';
+    var tdx = dx - lastTX, tdy = dy - lastTY;
+    if (tdx * tdx + tdy * tdy > 676) {  /* 26px */
+      lastTX = dx; lastTY = dy;
+      dropTrail(dx, dy);
+    }
+  }
+  var down = false;
+  cursorLoop();
+
+  /* hover bloom on anything interactive */
+  var HOVER_SEL = 'a, button, .suite-card, .gal-item, .retreat-card, .cal-d.a, .sc-dot, .gal-dot, .rp-dot, input, [data-close]';
+  document.addEventListener('mouseover', function(e) {
+    if (e.target.closest(HOVER_SEL)) dot.classList.add('hov');
+  }, { passive: true });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest(HOVER_SEL)) dot.classList.remove('hov');
+  }, { passive: true });
+
+  document.addEventListener('mousedown', function() { down = true; glow.classList.add('down'); }, { passive: true });
+  document.addEventListener('mouseup', function() { down = false; glow.classList.remove('down'); }, { passive: true });
+
+  /* click burst: two ripple rings + motes scattering, removed after play */
+  document.addEventListener('click', function(e) {
+    var b = document.createElement('div');
+    b.className = 'burst';
+    b.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+    var html = '<i></i><i></i>';
+    var n = 7;
+    for (var i = 0; i < n; i++) {
+      var ang = (Math.PI * 2 / n) * i + Math.random() * 0.6;
+      var dist = 26 + Math.random() * 30;
+      var px = Math.round(Math.cos(ang) * dist);
+      var py = Math.round(Math.sin(ang) * dist - 10); /* slight upward bias, like the motes */
+      html += '<b style="--dx:' + px + 'px;--dy:' + py + 'px"></b>';
+    }
+    b.innerHTML = html;
+    document.body.appendChild(b);
+    setTimeout(function() { if (b.parentElement) b.parentElement.removeChild(b); }, 950);
+  }, { passive: true });
+})();
+
+
+/* ═══ FOLD SECTIONS + FLOATING FOLD BUTTON ═══ */
+var foldSections = [];
+
+function setupFold(btnId, gridId, cardSel, openLabel, closeLabel, chapterId, openKeyName) {
+  var btn = document.getElementById(btnId);
+  var grid = document.getElementById(gridId);
+  if (!btn || !grid) return;
+  var section = { btn: btn, grid: grid, chapter: document.getElementById(chapterId), open: false, openKey: openKeyName };
+  foldSections.push(section);
+
+  function setState(open, viaFab) {
+    section.open = open;
+    grid.classList.toggle('open', open);
+    btn.innerHTML = open ? UI('foldAway') : UI(openKeyName);
+    if (open) {
+      setTimeout(function() {
+        var first = grid.querySelector(cardSel);
+        if (first && lenis && lenis.scrollTo) lenis.scrollTo(first, { duration: 1.6, offset: -90 });
+      }, 650);
+    } else if (viaFab && section.chapter) {
+      /* folding from the floating pill: glide back up to watch the suck-in */
+      if (lenis && lenis.scrollTo) lenis.scrollTo(section.chapter, { duration: 1.4, offset: -20 });
+    }
+    updateFab();
+  }
+  section.setState = setState;
+  btn.addEventListener('click', function() { setState(!section.open, false); });
+}
+
+setupFold('retreats-toggle', 'retreats-grid', '.retreat-card', null, null, 'ch-retreats', 'meetInst');
+setupFold('suites-toggle', 'suites-grid', '.suite-card', null, null, 'ch-suites', 'unfoldSuites');
+
+/* the floating pill appears when an open grid fills the view
+   and its own toggle button has scrolled away */
+var fab = document.getElementById('fold-fab');
+var fabTarget = null;
+
+function updateFab() {
+  var active = null;
+  var vh = window.innerHeight;
+  for (var i = 0; i < foldSections.length; i++) {
+    var s = foldSections[i];
+    if (!s.open) continue;
+    var gr = s.grid.getBoundingClientRect();
+    var br = s.btn.getBoundingClientRect();
+    var gridOnScreen = gr.top < vh * 0.85 && gr.bottom > vh * 0.3;
+    var btnGone = br.bottom < 0 || br.top > vh;
+    if (gridOnScreen && btnGone) { active = s; break; }
+  }
+  fabTarget = active;
+  fab.classList.toggle('show', !!active);
+}
+
+fab.addEventListener('click', function() {
+  if (fabTarget) fabTarget.setState(false, true);
+});
+
+window.addEventListener('scroll', updateFab, { passive: true });
+window.addEventListener('resize', updateFab, { passive: true });
+
+
+
+
+/* in-page anchors glide with easing instead of jumping */
+(function() {
+  var easeOut = function(t) { return 1 - Math.pow(1 - t, 3); };
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    if (a.hasAttribute('data-close')) return; /* menu has its own choreography */
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      if (lenis && lenis.scrollTo) {
+        lenis.scrollTo(target, { duration: 1.5, easing: easeOut, offset: 0 });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+})();
+
+
+/* ═══ FACILITATORS — four guides, each with their own page ═══ */
+var INSTRUCTORS = [
+  {
+    id: 1, initials: 'AS', grad: 'gm-morning',
+    name: 'Amir <em>Shalev</em>', plain: 'Amir Shalev',
+    disc: 'Breathing Therapy', loc: 'Tel Aviv & the Peloponnese',
+    email: 'amir@eliacoast.gr',
+    summary: 'Somatic breathwork therapist with twelve years of clinical and retreat practice. Amir teaches the breath as an instrument \u2014 for releasing what the body holds and quieting what the mind repeats.',
+    skills: [
+      'Amir trained in conscious-connected breathwork and somatic therapy, and has guided over four thousand individual sessions alongside group retreats across Israel and Greece. His work moves gently: long guided sessions on the terrace, the sound of the bay underneath, the nervous system slowly remembering how to rest.',
+      'His weeks at Elia Coast pair morning breathing sessions with afternoon integration \u2014 walks, journaling, silence \u2014 and close with an evening circle. No experience is needed; only willingness.'
+    ],
+    meta: [['12 yrs','Practice'],['14 max','Group'],['EN / HE','Languages']],
+    workshops: [
+      { t: 'The Breathing Week', d: 'Six days of conscious-connected breathwork, somatic release, and slow integration above the bay. Full board.', status: 'available', date: '17\u201322 May 2026' },
+      { t: 'Breath & Silence \u2014 Deepener', d: 'A three-day silent intensive for returning students. Two guided sessions daily, long unstructured afternoons.', status: 'soldout', date: '29 May\u20131 Jun 2026' }
+    ],
+    upcoming: ['17\u201322 May 2026', '29 May\u20131 Jun 2026', '20\u201325 Sep 2026']
+  },
+  {
+    id: 2, initials: 'EP', grad: 'gm-noon',
+    name: 'Eleni <em>Papadaki</em>', plain: 'Eleni Papadaki',
+    disc: 'Yoga', loc: 'Athens & the Argolid',
+    email: 'eleni@eliacoast.gr',
+    summary: 'Vinyasa and yin teacher with fifteen years of dawn practice. Eleni leads movement that follows the light \u2014 strong slow mornings, restorative evenings under the first stars.',
+    skills: [
+      'Eleni trained in Rishikesh and Athens, and has taught for fifteen years across Greece. Her practice pairs slow vinyasa with long-held yin \u2014 breath first, posture second \u2014 and is built for mixed groups: beginners are welcomed, experienced students are challenged.',
+      'Her retreats at Elia Coast begin on the terrace forty minutes before sunrise, when the bay is still grey. The practice ends as the first light reaches the water. Evenings close with yin and yoga nidra under the stars.'
+    ],
+    meta: [['15 yrs','Teaching'],['All levels','Practice'],['EN / GR','Languages']],
+    workshops: [
+      { t: 'Dawn Yoga \u2014 Spring', d: 'Seven days of sunrise vinyasa and evening yin above the bay. Full board, all sixteen suites reserved for the group.', status: 'available', date: '10\u201317 May 2026' },
+      { t: 'Yin & Nidra Weekend', d: 'A long weekend of stillness: long-held postures, guided rest, and the quiet October sea.', status: 'available', date: '9\u201312 Oct 2026' }
+    ],
+    upcoming: ['10\u201317 May 2026', '9\u201312 Oct 2026', 'Spring 2027 \u2014 dates soon']
+  },
+  {
+    id: 3, initials: 'ML', grad: 'gm-golden',
+    name: 'Maya <em>Lindholm</em>', plain: 'Maya Lindholm',
+    disc: 'Sound Healing', loc: 'Copenhagen & Crete',
+    email: 'maya@eliacoast.gr',
+    summary: 'Sound therapist working with gongs, Himalayan bowls, and voice. Maya\u2019s evening sound journeys happen in the olive grove \u2014 the bay carries the resonance further than any room could.',
+    skills: [
+      'Maya studied therapeutic sound in Nepal and Copenhagen and has led immersions for over a decade. She works with planetary gongs, Himalayan and crystal bowls, koshi chimes, and the oldest instrument \u2014 the human voice \u2014 building slow journeys that move the listener from thought into the body.',
+      'At Elia Coast her sessions happen outdoors at dusk, mats arranged among the olive trees, the last light on the water. The retreat pairs daily sound journeys with gentle breath and humming practices you take home.'
+    ],
+    meta: [['10 yrs','Practice'],['16 max','Group'],['EN / DK','Languages']],
+    workshops: [
+      { t: 'Sound Immersion \u2014 Summer', d: 'Five days of dusk sound journeys in the grove, morning voice and humming work, and long free afternoons by the sea.', status: 'available', date: '28 Jun\u20132 Jul 2026' },
+      { t: 'The Resonance Weekend', d: 'Three evenings of full-length gong baths and bowl journeys under the open sky.', status: 'soldout', date: '10\u201312 Jul 2026' }
+    ],
+    upcoming: ['28 Jun\u20132 Jul 2026', '10\u201312 Jul 2026', '4\u20138 Sep 2026']
+  },
+  {
+    id: 4, initials: 'KV', grad: 'gm-dusk',
+    name: 'Katerina <em>Vasiliou</em>', plain: 'Katerina Vasiliou',
+    disc: 'Rebirthing', loc: 'Nafplio',
+    email: 'katerina@eliacoast.gr',
+    summary: 'Rebirthing-breathwork facilitator trained in the Leonard Orr lineage. Katerina holds deep individual and small-group processes \u2014 circular breathing, warm-water sessions in the calm morning bay.',
+    skills: [
+      'Katerina has practiced rebirthing breathwork for fourteen years and trained directly within the Leonard Orr lineage. Her work uses gentle, connected circular breathing to soften early patterns the body still carries \u2014 always slowly, always with consent, always with time to integrate.',
+      'Her retreats are intentionally small \u2014 eight participants \u2014 and include warm-water breathing sessions in the shallow, calm morning bay, one of the few places in Greece where this work can happen in the sea itself. Each guest also receives two private sessions during the week.'
+    ],
+    meta: [['14 yrs','Facilitating'],['8 max','Group'],['EN / GR / HE','Languages']],
+    workshops: [
+      { t: 'Rebirthing Intensive', d: 'Six days of daily circular-breathing sessions, two private processes, and warm-water work in the morning bay.', status: 'available', date: '7\u201312 Jun 2026' },
+      { t: 'Water & Breath \u2014 September', d: 'The same arc in the warm September sea, with longer water sessions. Returning participants welcome.', status: 'available', date: '13\u201318 Sep 2026' }
+    ],
+    upcoming: ['7\u201312 Jun 2026', '13\u201318 Sep 2026', 'May 2027 \u2014 dates soon']
+  }
+];
+
+function renderInstructors() {
+  var grid = document.getElementById('retreats-grid');
+  var html = '';
+  INSTRUCTORS.forEach(function(p, i) {
+    html += '<article class="retreat-card" data-inst="' + p.id + '" style="--ri:' + i + '">';
+    html += '<div class="inst-avatar ' + p.grad + '">' + p.initials + '</div>';
+    html += '<div class="inst-disc">' + p.disc + '</div>';
+    html += '<h3 class="inst-name">' + p.name + '</h3>';
+    html += '<p class="inst-sum">' + p.summary + '</p>';
+    html += '<div class="inst-meta">';
+    p.meta.forEach(function(m) {
+      html += '<div class="inst-m"><span class="v">' + m[0] + '</span><span class="k">' + m[1] + '</span></div>';
+    });
+    html += '</div>';
+    html += '<div class="rt-foot"><span style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(253,250,246,0.5)">' + p.workshops.length + UI('workshopsN') + '</span>';
+    html += '<button class="rt-cta" data-inst-btn="' + p.id + '">' + UI('meet') + (LANG==='he' && p.firstHe ? p.firstHe : p.plain.split(' ')[0]) + (LANG==='he' ? ' &larr;' : ' &rarr;') + '</button></div>';
+    html += '</article>';
+  });
+  grid.innerHTML = html;
+  if (grid._bound) return; grid._bound = true;
+  grid.addEventListener('click', function(e) {
+    var card = e.target.closest('[data-inst]');
+    if (card) openInstructor(parseInt(card.getAttribute('data-inst'), 10));
+  });
+}
+
+var instOpen = false;
+function openInstructor(id) {
+  var p = null;
+  for (var i = 0; i < INSTRUCTORS.length; i++) { if (INSTRUCTORS[i].id === id) { p = INSTRUCTORS[i]; break; } }
+  if (!p) return;
+  var b = '';
+  b += '<div class="ip-head">';
+  b += '<div class="inst-avatar ' + p.grad + '">' + p.initials + '</div>';
+  b += '<div><div class="ip-disc">' + p.disc + '</div>';
+  b += '<h2 class="ip-name">' + p.name + '</h2>';
+  b += '<div class="ip-loc">' + p.loc + ' &middot; '+UI('resident')+'</div></div>';
+  b += '</div>';
+
+  b += '<div class="ip-sec">'+UI('curWorkshops')+'</div>';
+  p.workshops.forEach(function(w) {
+    var av = w.status === 'available';
+    var subj = encodeURIComponent('Sign up \u2014 ' + w.t + ' (' + w.date + ')');
+    var mailBody = encodeURIComponent('Hello ' + p.plain.split(' ')[0] + ',\n\nI would like to sign up for ' + w.t + ', ' + w.date + '.\n\nName:\nGuests:\n\nThank you');
+    b += '<div class="wk">';
+    b += '<div><div class="wk-t">' + w.t + '</div><div class="wk-d">' + w.d + '</div></div>';
+    b += '<div class="wk-right">';
+    b += '<span class="wk-badge ' + (av ? 'av' : 'so') + '">' + (av ? UI('availableB') : UI('soldOut')) + '</span>';
+    b += '<span style="font-size:11px;color:rgba(253,250,246,0.6)">' + w.date + '</span>';
+    b += av
+      ? '<a class="wk-sign" href="mailto:' + p.email + '?subject=' + subj + '&body=' + mailBody + '">'+UI('signUp')+'</a>'
+      : '<span class="wk-sign dis">'+UI('soldOut')+'</span>';
+    b += '</div></div>';
+  });
+
+  b += '<div class="ip-sec">'+UI('futureDates')+'</div>';
+  b += '<div class="ip-dates">';
+  p.upcoming.forEach(function(d) { b += '<span class="ip-date">' + d + '</span>'; });
+  b += '</div>';
+
+  b += '<div class="ip-sec">'+UI('about') + p.first[LANG] + '</div>';
+  p.skills.forEach(function(par) { b += '<p class="ip-skills">' + par + '</p>'; });
+
+  var enqSubj = encodeURIComponent('Enquiry \u2014 ' + p.disc + ' with ' + p.plain);
+  b += '<div class="ip-foot">';
+  b += '<a class="cl-btn" href="mailto:' + p.email + '?subject=' + enqSubj + '">'+UI('sendEnq')+'</a>';
+  b += '<a class="cl-ghost" href="mailto:' + p.email + '">' + p.email + '</a>';
+  b += '</div>';
+
+  document.getElementById('ip-body').innerHTML = b;
+  shaderWipe(function() {
+    document.getElementById('inst-page').classList.add('open');
+    document.querySelector('.inst-sheet').scrollTop = 0;
+    instOpen = true;
+    if (lenis) lenis.stop();
+  });
+}
+function closeInstructor() {
+  shaderWipe(function() {
+    document.getElementById('inst-page').classList.remove('open');
+    instOpen = false;
+    if (lenis) lenis.start();
+  });
+}
+document.getElementById('ip-close').addEventListener('click', closeInstructor);
+document.getElementById('inst-page').addEventListener('click', function(e) { if (e.target === this) closeInstructor(); });
+
+
+/* ═══════════════════════════════════════════════════════════
+   HEBREW CONTENT + LANGUAGE SWITCH MACHINERY
+   ═══════════════════════════════════════════════════════════ */
+
+/* static page strings: selector -> {en, he}. Applied on switch. */
+var STR = [
+  ['.nav-logo span', {en:'Residences &amp; Suites', he:'מגורים וסוויטות'}],
+  ['.hero-kicker', {en:'Chapter 01 &middot; Morning &middot; Peloponnese', he:'פרק 01 &middot; בוקר &middot; פלופונס'}],
+  ['.hero-h', {en:'You arrive<br>with the <em>morning light</em>', he:'אתם מגיעים<br>עם <em>אור הבוקר</em>'}, 'words'],
+  ['.cue-text', {en:'Scroll to discover', he:'גללו לגלות'}],
+  ['.menu-sub', {en:'Peloponnese &middot; Greece &middot; One sea, one day', he:'פלופונס &middot; יוון &middot; ים אחד, יום אחד'}],
+  ['.rail-label:first-child', {en:'Day', he:'יום'}],
+  ['#day-rail .rail-label:nth-of-type(2)', {en:'Night', he:'לילה'}],
+  ['#fold-fab', {en:'Fold away &uarr;', he:'קפלו חזרה &uarr;'}],
+  ['.gal-sub', {en:'Elia Coast &middot; Views through the day', he:'אליה קוסט &middot; מראות לאורך היום'}],
+  ['.gal-hint', {en:'Scroll &middot; swipe &middot; arrow keys', he:'גלילה &middot; החלקה &middot; מקשי חצים'}],
+  /* chapter 01 */
+  ['#ch-arrival + .chapter .ch-name', {en:'Arrival', he:'הגעה'}, 'words'],
+  ['#ch-arrival + .chapter .ch-desc', {en:'The road ends where the bay begins. Whitewashed walls, a blue gate, the sound of water below. The journey dissolves the moment you see the sea.', he:'הדרך נגמרת היכן שהמפרץ מתחיל. קירות מסוידים בלבן, שער כחול, קול המים מלמטה. הדרך הארוכה נמסה ברגע שרואים את הים.'}],
+  ['#ch-arrival + .chapter .ch-index', {en:'<li>The Bay</li><li>The Light</li><li>The Quiet</li>', he:'<li>המפרץ</li><li>האור</li><li>השקט</li>'}],
+  ['#ch-arrival + .chapter .ch-next', {en:'Next &mdash; The Suites &rarr;', he:'הבא &mdash; הסוויטות &larr;'}],
+  /* chapter cards by id */
+  ['#ch-suites .ch-name', {en:'The <em>Suites</em>', he:'<em>הסוויטות</em>'}, 'words'],
+  ['#ch-suites .ch-desc', {en:'Sixteen private worlds above the water. Each one faces the bay; each one holds the light differently. Choose by feeling, not by floor plan.', he:'שישה־עשר עולמות פרטיים מעל המים. כל אחד פונה אל המפרץ; כל אחד אוחז באור אחרת. בחרו לפי תחושה, לא לפי תוכנית.'}],
+  ['#ch-suites .ch-index', {en:'<li>Sea View</li><li>Garden</li><li>Hillside</li><li>Family</li>', he:'<li>נוף לים</li><li>גן</li><li>מדרון</li><li>משפחה</li>'}],
+  ['#ch-suites .ch-actions a.ch-next', {en:'Next &mdash; The Experience &rarr;', he:'הבא &mdash; החוויה &larr;'}],
+  ['#ch-experience .ch-name', {en:'The <em>Experience</em>', he:'<em>החוויה</em>'}, 'words'],
+  ['#ch-experience .ch-desc', {en:'Afternoons here are measured in swims, not hours. The olive groves hold the heat; the water holds the cold; Epidaurus and Nafplio hold two thousand years.', he:'אחר־צהריים כאן נמדד בשחיות, לא בשעות. כרמי הזית אוחזים בחום; המים אוחזים בקור; אפידאורוס ונפפליו אוחזות באלפיים שנה.'}],
+  ['#ch-experience .ch-index', {en:'<li>The Beach</li><li>The Groves</li><li>The Ruins</li><li>The Table</li>', he:'<li>החוף</li><li>הכרמים</li><li>העתיקות</li><li>השולחן</li>'}],
+  ['#ch-experience .ch-next', {en:'Next &mdash; Retreats &rarr;', he:'הבא &mdash; ריטריטים &larr;'}],
+  ['#ch-retreats .ch-name', {en:'The <em>Retreats</em>', he:'<em>הריטריטים</em>'}, 'words'],
+  ['#ch-retreats .ch-desc', {en:'Our retreats are led by four practitioners we trust completely. Each hands the property a single intention \u2014 the breath, the body, the resonance, the return. Meet them, see their workshops, and write to them directly.', he:'\u05d4\u05e8\u05d9\u05d8\u05e8\u05d9\u05d8\u05d9\u05dd \u05e9\u05dc\u05e0\u05d5 \u05de\u05d5\u05d1\u05dc\u05d9\u05dd \u05e2\u05dc \u05d9\u05d3\u05d9 \u05d0\u05e8\u05d1\u05e2\u05d4 \u05de\u05d8\u05e4\u05dc\u05d9\u05dd \u05e9\u05d0\u05e0\u05d7\u05e0\u05d5 \u05e1\u05d5\u05de\u05db\u05d9\u05dd \u05e2\u05dc\u05d9\u05d4\u05dd \u05dc\u05d7\u05dc\u05d5\u05d8\u05d9\u05df. \u05db\u05dc \u05d0\u05d7\u05d3 \u05de\u05e2\u05e0\u05d9\u05e7 \u05dc\u05de\u05ea\u05d7\u05dd \u05db\u05d5\u05d5\u05e0\u05d4 \u05d0\u05d7\u05ea \u2014 \u05d4\u05e0\u05e9\u05d9\u05de\u05d4, \u05d4\u05d2\u05d5\u05e3, \u05d4\u05ea\u05d4\u05d5\u05d3\u05d4, \u05d4\u05e9\u05d9\u05d1\u05d4. \u05d4\u05db\u05d9\u05e8\u05d5 \u05d0\u05d5\u05ea\u05dd, \u05e6\u05e4\u05d5 \u05d1\u05e1\u05d3\u05e0\u05d0\u05d5\u05ea \u05d5\u05db\u05ea\u05d1\u05d5 \u05dc\u05d4\u05dd \u05d9\u05e9\u05d9\u05e8\u05d5\u05ea.'}],
+  ['#ch-retreats .ch-index', {en:'<li>Breathing Therapy</li><li>Yoga</li><li>Sound Healing</li><li>Rebirthing</li>', he:'<li>תרפיה בנשימה</li><li>יוגה</li><li>ריפוי בצליל</li><li>ריברסינג</li>'}],
+  ['#ch-retreats .ch-actions a.ch-next', {en:'Next &mdash; The Evening &rarr;', he:'הבא &mdash; הערב &larr;'}],
+  ['#ch-evening .ch-name', {en:'The <em>Evening</em>', he:'<em>הערב</em>'}, 'words'],
+  ['#ch-evening .ch-desc', {en:'The mountains across the bay turn violet. The water turns to rose-gold glass. Dinner is fish caught this morning, wine grown an hour away, and no reason to hurry.', he:'ההרים שמעבר למפרץ הופכים סגולים. המים הופכים לזכוכית של ורוד וזהב. ארוחת הערב היא דג שנתפס הבוקר, יין שגדל במרחק שעה, ושום סיבה למהר.'}],
+  ['#ch-evening .ch-index', {en:'<li>The Sunset</li><li>The Taverna</li><li>The Stars</li>', he:'<li>השקיעה</li><li>הטברנה</li><li>הכוכבים</li>'}],
+  ['#ch-evening .ch-next', {en:'Next &mdash; Contact &rarr;', he:'הבא &mdash; צור קשר &larr;'}],
+  ['#ch-contact .ch-name', {en:'Stay <em>with us</em>', he:'הישארו <em>איתנו</em>'}, 'words'],
+  ['#ch-contact .ch-desc', {en:'Questions about a suite, dates, or which house fits your group — write to us. We answer like neighbours, not like a front desk.', he:'שאלות על סוויטה, תאריכים, או איזה בית מתאים לקבוצה שלכם — כתבו לנו. אנחנו עונים כמו שכנים, לא כמו קבלה.'}],
+  /* statements (full h2 incl sub) */
+  ['#st1 h2', {en:'The sea does<br>the <em>welcoming</em><span class="sub fade-rise">Forty steps from your door</span>', he:'הים הוא<br>זה <em>שמקבל</em><span class="sub fade-rise">ארבעים צעדים מהדלת שלכם</span>'}, 'words'],
+  ['#st2 h2', {en:'Three hundred days<br>of <em>sun</em><span class="sub fade-rise">And a private pebble beach below</span>', he:'שלוש מאות ימים<br>של <em>שמש</em><span class="sub fade-rise">וחוף חלוקים פרטי מתחת</span>'}, 'words'],
+  ['#st3 h2', {en:'The light here<br>does something <em>to you</em><span class="sub fade-rise">It slows you down. It opens things.</span>', he:'האור כאן<br>עושה משהו <em>בפנים</em><span class="sub fade-rise">הוא מאט אתכם. הוא פותח דברים.</span>'}, 'words'],
+  ['#st4 h2', {en:'Whole days,<br>given to <em>one thing</em><span class="sub fade-rise">The rarest luxury we offer</span>', he:'ימים שלמים,<br>מוקדשים <em>לדבר אחד</em><span class="sub fade-rise">המותרות הנדירות ביותר שלנו</span>'}, 'words'],
+  /* key data */
+  ['.keydata .kd:nth-child(1) .kd-l', {en:'Suites &amp; residences', he:'סוויטות ומגורים'}],
+  ['.keydata .kd:nth-child(2) .kd-l', {en:'Days of sun a year', he:'ימי שמש בשנה'}],
+  ['.keydata .kd:nth-child(3) .kd-l', {en:'Steps to the sea', he:'צעדים אל הים'}],
+  ['.keydata .kd:nth-child(4) .kd-l', {en:'Guest rating', he:'דירוג אורחים'}],
+  /* contact */
+  ['.contact-card h2', {en:'Begin your <em>stay</em>', he:'התחילו את <em>השהות</em>'}],
+  ['.contact-card p', {en:'Elia Coast Residences &amp; Suites &middot; Peloponnese, Greece<br>Sixteen suites above a private bay.', he:'אליה קוסט מגורים וסוויטות &middot; פלופונס, יוון<br>שש־עשרה סוויטות מעל מפרץ פרטי.'}],
+  ['.contact-links .cl-btn', {en:'Enquire by email', he:'פנייה במייל'}],
+  ['.site-end p:first-child', {en:'&copy; 2026 Elia Coast Residences &amp; Suites', he:'&copy; 2026 אליה קוסט מגורים וסוויטות'}],
+  ['.site-end p:last-child', {en:'Peloponnese &middot; Greece', he:'פלופונס &middot; יוון'}]
+];
+
+/* menu chapter names */
+var MENU_NAMES = {
+  en: ['Arrival','The Suites','The Experience','Retreats','The Evening','Contact'],
+  he: ['הגעה','הסוויטות','החוויה','ריטריטים','הערב','צור קשר']
+};
+
+/* calendar locales */
+var CAL_LOC = {
+  en: { months: ['January','February','March','April','May','June','July','August','September','October','November','December'], dows: ['Mo','Tu','We','Th','Fr','Sa','Su'] },
+  he: { months: ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'], dows: ['ב\u05f3','ג\u05f3','ד\u05f3','ה\u05f3','ו\u05f3','ש\u05f3','א\u05f3'] }
+};
+
+/* suite translations: id -> fields */
+var SUITES_HE = {
+  1:{name:'סוויטת <em>נוף לים</em>',type:'סוויטת נוף לים',desc:'קומה ראשונה, נוף פתוח לים. המרפסת פונה מערבה.',amenities:['מרפסת לים','מיזוג','Wifi','מצעים יומיים']},
+  2:{name:'נוף לים <em>סופריור</em>',type:'סוויטת נוף לים סופריור',desc:'יותר מרחב, אותו נוף שאין שני לו. מרפסת רחבה ופינת ישיבה.',amenities:['מרפסת רחבה','פינת ישיבה','מיזוג','Wifi']},
+  3:{name:'בית <em>הגן</em>',type:'בית גן',desc:'בית עצמאי בתוך כרם הזיתים. מרפסת גן ומטבח מלא.',amenities:['גן פרטי','מטבח','מיזוג','BBQ']},
+  4:{name:'מעון <em>החוף</em>',type:'מעון חוף',desc:'מדרגות אבן מובילות ישירות לחוף החלוקים הפרטי שמתחת.',amenities:['גישה לחוף','נוף לים','מיזוג','מקלחת חוץ']},
+  5:{name:'פנטהאוז <em>השקיעה</em>',type:'סוויטת פנטהאוז',desc:'קומה עליונה, מרפסת היקפית, השקיעה הטובה ביותר במתחם.',amenities:['מרפסת פנורמית','נוף 360','מיזוג','שמפניה']},
+  6:{name:'סוויטת <em>החצר</em>',type:'סוויטת חצר',desc:'חצר פרטית מסוידת בלבן עם בוגנוויליה וכדי חרס.',amenities:['חצר','גן','מיזוג','Wifi']},
+  7:{name:'חצר <em>סופריור</em>',type:'סוויטת חצר סופריור',desc:'מרפסת נדיבה, שולחן אבן חיצוני, שבילי גן אל הים.',amenities:['מרפסת גדולה','גן','מיזוג','Wifi']},
+  8:{name:'וילת <em>כרם הזיתים</em>',type:'וילה',desc:'וילה שלמה בין זיתים עתיקים. מרפסת מקורה ומטבח חוץ.',amenities:['מטבח חוץ','בריכה','מיזוג','חניה']},
+  9:{name:'חדר <em>קלאסי</em>',type:'חדר קלאסי',desc:'פשוט, כן, ממוקם בדיוק נכון. מרפסת קטנה מעל שביל הים.',amenities:['מרפסת','שביל הים','מיזוג','Wifi']},
+  10:{name:'קלאסי <em>סופריור</em>',type:'חדר קלאסי סופריור',desc:'אותה פשטות כנה עם מרפסת רחבה יותר הפונה לים.',amenities:['מרפסת גדולה','נוף לים','מיזוג','Wifi']},
+  11:{name:'סוויטה <em>משפחתית</em>',type:'סוויטה משפחתית',desc:'שני חדרים מחוברים, מרפסת משותפת, החוף במרחק הליכה קצרה.',amenities:['חדרים מחוברים','מרפסת','גן','מיזוג']},
+  12:{name:'וילה <em>משפחתית</em>',type:'וילה משפחתית',desc:'וילה עצמאית למשפחות. גן, פינת ילדים, שביל לחוף.',amenities:['גן','פינת ילדים','מטבח','מיזוג']},
+  13:{name:'סוויטת <em>המדרון</em>',type:'סוויטת מדרון',desc:'גבוה יותר על המדרון — הים מצד אחד, ארגוליס העתיקה מאחור.',amenities:['נוף פנורמי','מרפסת גבעה','מיזוג','Wifi']},
+  14:{name:'מדרון <em>סופריור</em>',type:'סוויטת מדרון סופריור',desc:'דו־מפלסית עם אמבט טבילה חיצוני. המרפסת הפרטית ביותר.',amenities:['אמבט חיצוני','דו־מפלסית','מיזוג','Wifi']},
+  15:{name:'סטודיו <em>ליד הים</em>',type:'סטודיו ים',desc:'קומפקטי, חלל פתוח, מטבחון — הים במרחק צעדים.',amenities:['צעדים מהים','מטבחון','מיזוג','Wifi']},
+  16:{name:'סוויטה <em>נגישה</em>',type:'סוויטה נגישה',desc:'פתחים רחבים, מקלחת נגישה, קומת קרקע. ללא פשרות.',amenities:['נגישה לחלוטין','מקלחת נגישה','קומת קרקע','מיזוג']}
+};
+
+/* instructor translations */
+var INST_HE = {
+  1:{disc:'תרפיה בנשימה',loc:'תל אביב והפלופונס',firstHe:'אמיר',
+     summary:'מטפל בנשימה סומטית עם שתים־עשרה שנות פרקטיקה קלינית וריטריטים. אמיר מלמד את הנשימה ככלי — לשחרור מה שהגוף אוחז ולהשקטת מה שהמוח חוזר עליו.',
+     skills:['אמיר הוכשר בנשימה מעגלית מודעת ובתרפיה סומטית, והנחה למעלה מארבעת אלפים מפגשים אישיים לצד ריטריטים קבוצתיים בישראל וביוון. העבודה שלו נעה בעדינות: מפגשים מודרכים ארוכים על המרפסת, קול המפרץ מתחת, מערכת העצבים נזכרת לאט איך לנוח.','השבועות שלו באליה קוסט משלבים מפגשי נשימה של בוקר עם אינטגרציה של אחר־צהריים — הליכות, כתיבה, שקט — ונסגרים במעגל ערב. לא נדרש ניסיון; רק נכונות.'],
+     meta:[['12 שנה','פרקטיקה'],['עד 14','קבוצה'],['EN / HE','שפות']],
+     workshops:[{t:'שבוע הנשימה',d:'שישה ימים של נשימה מעגלית מודעת, שחרור סומטי ואינטגרציה איטית מעל המפרץ. פנסיון מלא.'},{t:'נשימה ושקט — העמקה',d:'אינטנסיב שקט של שלושה ימים לתלמידים חוזרים. שני מפגשים מודרכים ביום, אחר־צהריים פתוח וארוך.'}]},
+  2:{disc:'יוגה',loc:'אתונה והארגוליס',firstHe:'אלני',
+     summary:'מורה לוויניאסה ויין עם חמש־עשרה שנות תרגול שחר. אלני מובילה תנועה שעוקבת אחרי האור — בקרים חזקים ואיטיים, ערבים משקמים תחת הכוכבים הראשונים.',
+     skills:['אלני הוכשרה ברישיקש ובאתונה ומלמדת חמש־עשרה שנה ברחבי יוון. התרגול שלה משלב ויניאסה איטית עם יין ממושך — קודם נשימה, אחר כך תנוחה — ומתאים לקבוצות מעורבות: מתחילים מתקבלים בברכה, מתקדמים מאותגרים.','הריטריטים שלה באליה קוסט מתחילים על המרפסת ארבעים דקות לפני הזריחה, כשהמפרץ עדיין אפור. התרגול מסתיים כשהאור הראשון מגיע למים. הערבים נסגרים ביין ויוגה נידרה תחת הכוכבים.'],
+     meta:[['15 שנה','הוראה'],['כל הרמות','תרגול'],['EN / GR','שפות']],
+     workshops:[{t:'יוגה עם שחר — אביב',d:'שבעה ימים של ויניאסת זריחה ויין של ערב מעל המפרץ. פנסיון מלא, כל שש־עשרה הסוויטות שמורות לקבוצה.'},{t:'סוף שבוע יין ונידרה',d:'סוף שבוע ארוך של דממה: תנוחות ממושכות, מנוחה מודרכת והים השקט של אוקטובר.'}]},
+  3:{disc:'ריפוי בצליל',loc:'קופנהגן וכרתים',firstHe:'מאיה',
+     summary:'מטפלת בצליל העובדת עם גונגים, קערות הימלאיה וקול. מסעות הצליל של מאיה מתרחשים בכרם הזיתים — המפרץ נושא את התהודה רחוק יותר מכל חדר.',
+     skills:['מאיה למדה צליל תרפויטי בנפאל ובקופנהגן ומובילה טבילות צליל למעלה מעשור. היא עובדת עם גונגים פלנטריים, קערות הימלאיה וקריסטל, פעמוני קושי, והכלי העתיק מכולם — הקול האנושי — ובונה מסעות איטיים שמעבירים את המאזין מהמחשבה אל הגוף.','באליה קוסט המפגשים שלה מתקיימים בחוץ בדמדומים, מזרנים פרושים בין עצי הזית, האור האחרון על המים. הריטריט משלב מסעות צליל יומיים עם תרגולי נשימה והמהום עדינים שלוקחים הביתה.'],
+     meta:[['10 שנים','פרקטיקה'],['עד 16','קבוצה'],['EN / DK','שפות']],
+     workshops:[{t:'טבילת צליל — קיץ',d:'חמישה ימים של מסעות צליל בדמדומים בכרם, עבודת קול והמהום של בוקר, ואחר־צהריים חופשי וארוך ליד הים.'},{t:'סוף שבוע התהודה',d:'שלושה ערבים של אמבטיות גונג מלאות ומסעות קערות תחת כיפת השמיים.'}]},
+  4:{disc:'ריברסינג',loc:'נפפליו',firstHe:'קתרינה',
+     summary:'מנחת ריברסינג שהוכשרה בשושלת לאונרד אור. קתרינה מחזיקה תהליכים אישיים וקבוצתיים עמוקים — נשימה מעגלית ומפגשי מים חמים במפרץ הבוקר השקט.',
+     skills:['קתרינה מתרגלת ריברסינג ארבע־עשרה שנה והוכשרה ישירות בשושלת לאונרד אור. העבודה שלה משתמשת בנשימה מעגלית מחוברת ועדינה כדי לרכך דפוסים מוקדמים שהגוף עדיין נושא — תמיד לאט, תמיד בהסכמה, תמיד עם זמן לאינטגרציה.','הריטריטים שלה קטנים בכוונה — שמונה משתתפים — וכוללים מפגשי נשימה במים חמים במפרץ הבוקר הרדוד והשקט, אחד המקומות הבודדים ביוון שבהם העבודה הזו יכולה להתרחש בים עצמו. כל אורח מקבל גם שני מפגשים פרטיים במהלך השבוע.'],
+     meta:[['14 שנה','הנחיה'],['עד 8','קבוצה'],['EN / GR / HE','שפות']],
+     workshops:[{t:'אינטנסיב ריברסינג',d:'שישה ימים של מפגשי נשימה מעגלית יומיים, שני תהליכים פרטיים ועבודת מים חמים במפרץ הבוקר.'},{t:'מים ונשימה — ספטמבר',d:'אותו מהלך בים החמים של ספטמבר, עם מפגשי מים ארוכים יותר. משתתפים חוזרים מוזמנים.'}]}
+};
+
+/* mood labels for card carousels + gallery */
+var MOOD_HE = {'Morning':'בוקר','Midday':'צהריים','Golden hour':'שעת הזהב','Dusk':'דמדומים','Night':'לילה','First light':'אור ראשון','Late morning':'בוקר מאוחר','Afternoon':'אחר הצהריים','Sunset':'שקיעה','Blue hour':'השעה הכחולה'};
+
+/* backup EN data once, then swap by language */
+function localizeData() {
+  SUITES.forEach(function(s) {
+    if (!s._en) s._en = { name: s.name, type: s.type, desc: s.desc, amenities: s.amenities };
+    var src = LANG === 'he' ? SUITES_HE[s.id] : s._en;
+    if (src) { s.name = src.name; s.type = src.type; s.desc = src.desc; s.amenities = src.amenities; }
+  });
+  INSTRUCTORS.forEach(function(p) {
+    if (!p._en) p._en = { disc: p.disc, loc: p.loc, summary: p.summary, skills: p.skills, meta: p.meta,
+      wk: p.workshops.map(function(w) { return { t: w.t, d: w.d }; }) };
+    p.first = p.first || {};
+    p.first.en = p.plain.split(' ')[0];
+    var he = INST_HE[p.id];
+    p.first.he = he ? he.firstHe : p.first.en;
+    p.firstHe = p.first.he;
+    var src = LANG === 'he' && he ? he : p._en;
+    p.disc = src.disc; p.loc = src.loc; p.summary = src.summary; p.skills = src.skills; p.meta = src.meta;
+    var wsrc = LANG === 'he' && he ? he.workshops : p._en.wk;
+    p.workshops.forEach(function(w, i) { if (wsrc[i]) { w.t = wsrc[i].t; w.d = wsrc[i].d; } });
+  });
+  /* moods */
+  MOOD_SETS.forEach(function(set) { set.forEach(function(m) {
+    if (!m._en) m._en = m.label;
+    m.label = LANG === 'he' ? (MOOD_HE[m._en] || m._en) : m._en;
+  }); });
+  DAY_HOURS.forEach(function(m) {
+    if (!m._en) m._en = m.label;
+    m.label = LANG === 'he' ? (MOOD_HE[m._en] || m._en) : m._en;
+  });
+  /* calendar */
+  CAL_MONTHS = CAL_LOC[LANG].months;
+  CAL_DOWS = CAL_LOC[LANG].dows;
+}
+
+function applyStatic() {
+  STR.forEach(function(row) {
+    var el = document.querySelector(row[0]);
+    if (!el) return;
+    el.innerHTML = row[1][LANG] || row[1].en;
+    if (row[2] === 'words') {
+      splitWords(el);
+      /* replay entrance if currently visible */
+      if (el.classList.contains('inview')) { el.classList.remove('inview'); void el.offsetWidth; el.classList.add('inview'); }
+    }
+  });
+  /* menu names: rewrite + re-split letters */
+  var names = document.querySelectorAll('.menu-name');
+  names.forEach(function(n, i) { n.textContent = MENU_NAMES[LANG][i] || MENU_NAMES.en[i]; });
+  splitMenuLetters();
+  /* menu / fold buttons by state */
+  var mb = document.getElementById('menu-btn');
+  mb.textContent = document.getElementById('menu').classList.contains('open') ? UI('close').replace(/&[^;]+;/g,'') : (LANG==='he'?'תפריט':'Menu');
+  foldSections.forEach(function(s) {
+    s.btn.innerHTML = s.open ? UI('foldAway') : UI(s.openKey);
+  });
+  document.getElementById('fold-fab').innerHTML = UI('foldAway');
+}
+
+function setLang(lang) {
+  if (lang === LANG) return;
+  LANG = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.body.classList.toggle('rtl', lang === 'he');
+  document.getElementById('lang-btn').textContent = lang === 'he' ? 'עב' : 'EN';
+  document.querySelectorAll('.lang-opt').forEach(function(o) {
+    o.classList.toggle('active', o.getAttribute('data-lang') === lang);
+  });
+  localizeData();
+  applyStatic();
+  /* re-render dynamic grids with new language */
+  renderGrid();
+  carousels.length = 0;
+  document.querySelectorAll('.sc-vis[data-car]').forEach(function(el, i) {
+    carousels.push({ el: el, idx: 0, last: performance.now() + i * 700 });
+  });
+  renderInstructors();
+}
+
+/* popup wiring */
+(function() {
+  var btn = document.getElementById('lang-btn');
+  var pop = document.getElementById('lang-pop');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    pop.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (!pop.contains(e.target) && e.target !== btn) pop.classList.remove('open');
+  });
+  pop.querySelectorAll('.lang-opt').forEach(function(o) {
+    o.addEventListener('click', function() {
+      pop.classList.remove('open');
+      setLang(this.getAttribute('data-lang'));
+    });
+  });
+})();
+
+/* menu letter splitter as reusable function (re-split on language change) */
+function splitMenuLetters() {
+  var rots = [-12, 9, -7, 14, -9, 11, -14, 7, -6, 12, -8, 10, -11, 6];
+  document.querySelectorAll('.menu-name').forEach(function(nameEl) {
+    var txt = nameEl.textContent;
+    var out = '';
+    for (var i = 0; i < txt.length; i++) {
+      var ch = txt[i];
+      if (ch === ' ') { out += '<span class="m-l sp" style="--i:' + i + '"></span>'; }
+      else { out += '<span class="m-l" style="--i:' + i + ';--r:' + rots[i % rots.length] + 'deg">' + ch + '</span>'; }
+    }
+    nameEl.innerHTML = out;
+  });
+}
+
+/* prime EN names + first-name map at boot */
+localizeData();
+
+renderGrid();
+renderInstructors();
+initCarousels();
+updateProgress();
+
+</script>
+</body>
+</html>
